@@ -6,12 +6,14 @@ import {
   ChatMessagesSchema,
 } from 'src/database/schemas/ChatMessages.schema';
 import { ChatMessagesService } from './chatMessages.service';
+import { MessagesModule } from '../message/message.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: ChatMessages.name, schema: ChatMessagesSchema },
     ]),
+    MessagesModule,
   ],
   controllers: [ChatMessagesController],
   providers: [ChatMessagesService],

@@ -3,3 +3,8 @@ export interface MessageResponse {
   content: string;
   chatId: string;
 }
+
+export interface messageInfoResponse {
+  sender: string;
+  content: string;
+}

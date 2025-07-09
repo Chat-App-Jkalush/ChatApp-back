@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { CreateMessageDto } from '../../../../common/dto/message.dto';
-import { MessageResponse } from './Ro/message.ro';
+import { messageInfoResponse, MessageResponse } from './Ro/message.ro';
 
 @Controller('messages')
 export class MessageController {
@@ -10,5 +10,12 @@ export class MessageController {
   @Post()
   async createMessage(@Body() dto: CreateMessageDto): Promise<MessageResponse> {
     return this.messageService.createMessage(dto);
+  }
+
+  @Get()
+  async getById(
+    @Query('messageId') messageId: string,
+  ): Promise<messageInfoResponse> {
+    return this.messageService.getById(messageId);
   }
 }
