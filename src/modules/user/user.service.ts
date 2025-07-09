@@ -5,7 +5,7 @@ import { User, UserDocument } from 'src/database/schemas/users.schema';
 import * as bcrypt from 'bcrypt';
 import { UserResponse } from './Ro/user.ro';
 import { BCRYPT_SALT_ROUNDS } from 'src/constants/auth.constants';
-import { CreateUserDto } from '../../../../common/dto/user.dto';
+import { RegisterDto } from '../../../../common/dto/user.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -20,7 +20,7 @@ export class UserService {
     };
   }
 
-  async createUser(dto: CreateUserDto): Promise<UserResponse> {
+  async createUser(dto: RegisterDto): Promise<UserResponse> {
     const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
 
     const createdUser = new this.userModel({
@@ -30,5 +30,10 @@ export class UserService {
 
     const savedUser = await createdUser.save();
     return this.mapToUserResponse(savedUser);
+  }
+
+  async findUserByUserName(userName: string): Promise<User | null> {
+    const user = await this.userModel.findOne({ userName }).exec();
+    return user ? user : null;
   }
 }
