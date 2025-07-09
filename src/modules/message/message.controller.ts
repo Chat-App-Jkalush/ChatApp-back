@@ -18,4 +18,11 @@ export class MessageController {
   ): Promise<messageInfoResponse> {
     return this.messageService.getById(messageId);
   }
+
+  @Get('by-chat')
+  async getAllByChatId(
+    @Query('chatId') chatId: string,
+  ): Promise<messageInfoResponse[]> {
+    return this.messageService.getAllByChatId(chatId);
+  }
 }

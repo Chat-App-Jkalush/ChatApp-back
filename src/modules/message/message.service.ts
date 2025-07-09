@@ -32,4 +32,12 @@ export class MessageService {
       content: message.content,
     };
   }
+
+  async getAllByChatId(chatId: string): Promise<messageInfoResponse[]> {
+    const messages = await this.messageModel.find({ chatId }).exec();
+    return messages.map((msg) => ({
+      sender: msg.sender,
+      content: msg.content,
+    }));
+  }
 }
