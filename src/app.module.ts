@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
+import { MessagesModule } from './modules/message/message.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ChatModule } from './modules/chat/chat.module';
     DatabaseModule,
     UserModule,
     ContactModule,
+    MessagesModule,
     AuthModule,
     ChatModule,
   ],
