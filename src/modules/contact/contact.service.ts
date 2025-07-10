@@ -3,7 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Contact, ContactDocument } from 'src/database/schemas/contacts.schema';
 import { CreateContactDto } from '../../../../common/dto/contact.dto';
-import { ContactRo, GetAllContactsResponse } from './Ro/contact.ro';
+import {
+  ContactRo,
+  GetAllContactsResponse,
+} from '../../../../common/Ro/contact.ro';
 
 @Injectable()
 export class ContactService {

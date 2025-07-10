@@ -2,8 +2,8 @@ import { Body, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/database/schemas/chats.schema';
-import { ChatRo } from './Ro/chat.ro';
 import { CreateChatDto } from '../../../../common/dto/chat.dto';
+import { ChatRo } from '../../../../common/Ro/chat.ro';
 
 @Injectable()
 export class ChatService {
@@ -16,7 +16,7 @@ export class ChatService {
     const savedChat = await createdChat.save();
 
     return {
-      charName: savedChat.chatName,
+      chatName: savedChat.chatName,
     };
   }
 }
