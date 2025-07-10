@@ -3,6 +3,7 @@ import { UserService } from '../user/user.service';
 import { LoginDto, RegisterDto } from '../../../../common/dto/user.dto';
 import { UserResponse } from '../user/Ro/user.ro';
 import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -41,5 +42,11 @@ export class AuthService {
     };
 
     return this.userService.createUser(newUser);
+  }
+  generateJwt(user: any): string {
+    const payload = { sub: user._id, username: user.userName };
+    return jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
   }
 }

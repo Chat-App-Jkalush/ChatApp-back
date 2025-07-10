@@ -33,11 +33,26 @@ export class MessageService {
     };
   }
 
-  async getAllByChatId(chatId: string): Promise<messageInfoResponse[]> {
-    const messages = await this.messageModel.find({ chatId }).exec();
-    return messages.map((msg) => ({
-      sender: msg.sender,
-      content: msg.content,
-    }));
+  async *getAllByChatIdStream(
+    chatId: string,
+  ): AsyncGenerator<messageInfoResponse> {
+    // Creates an aggregation pipeline with cursor for memory efficiency
+    const cursor = this.messageModel
+      .aggregate([
+        { $match: { chatId } },
+        { $project: { sender: 1, content: 1, _id: 0 } },
+      ])
+      .cursor({ batchSize: 1000 });
+
+    try {
+      for await (const document of cursor) {
+        yield {
+          sender: document.sender,
+          content: document.content,
+        };
+      }
+    } finally {
+      await cursor.close();
+    }
   }
 }
