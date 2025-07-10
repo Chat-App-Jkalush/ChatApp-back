@@ -27,7 +27,7 @@ export class User {
   @Prop({ required: true, default: [] })
   contacts: string[];
 
-  @Prop({ required: true, default: [] })
-  chats: string[];
+  @Prop({ required: true, type: Object, default: {} })
+  chats: Record<string, string>;
 }
 export const UserSchema = SchemaFactory.createForClass(User);

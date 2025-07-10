@@ -11,4 +11,11 @@ export class ChatsController {
   async createChat(@Body() dto: CreateChatDto): Promise<ChatRo> {
     return this.chatService.createChat(dto);
   }
+
+  @Post('add-user-to-chat')
+  async addUserToChat(
+    @Body() dto: { userName: string; chatId: string },
+  ): Promise<ChatRo> {
+    return this.chatService.addUserToChat(dto.userName, dto.chatId);
+  }
 }

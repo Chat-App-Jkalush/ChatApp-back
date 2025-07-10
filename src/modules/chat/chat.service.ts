@@ -11,12 +11,32 @@ export class ChatService {
     @InjectModel(Chat.name) private readonly chatModel: Model<Chat>,
   ) {}
 
-  async createChat(@Body() dto: CreateChatDto): Promise<ChatRo> {
-    const createdChat = new this.chatModel(dto);
+  async createChat(dto: CreateChatDto): Promise<ChatRo> {
+    const createdChat = new this.chatModel({
+      chatName: dto.chatName,
+      messages: [],
+      participants: dto.participants ?? [],
+    });
     const savedChat = await createdChat.save();
 
     return {
       chatName: savedChat.chatName,
+    };
+  }
+
+  async addUserToChat(userName: string, chatId: string): Promise<ChatRo> {
+    const chat = await this.chatModel.findById(chatId);
+    if (!chat) {
+      throw new Error('Chat not found');
+    }
+
+    if (!chat.participants.includes(userName)) {
+      chat.participants.push(userName);
+      await chat.save();
+    }
+
+    return {
+      chatName: chat.chatName,
     };
   }
 }

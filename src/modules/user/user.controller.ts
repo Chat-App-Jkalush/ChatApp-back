@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Query, Get } from '@nestjs/common';
+import { Controller, Post, Body, Query, Get, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterDto } from '../../../../common/dto/user.dto';
 import { UserResponse } from '../../../../common/Ro/user.ro';
@@ -17,5 +17,13 @@ export class UserController {
     @Query('userName') userName: string,
   ): Promise<UserResponse | null> {
     return this.userService.getUserByUserName(userName);
+  }
+
+  @Put('update')
+  async updateUser(
+    @Body() body: { userName: string; chatId: string; chatName: string },
+  ): Promise<UserResponse> {
+    const { userName, chatId, chatName } = body;
+    return this.userService.updateUser(userName, chatId, chatName);
   }
 }

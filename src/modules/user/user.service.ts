@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Body, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
@@ -30,7 +30,7 @@ export class UserService {
       ...dto,
       password: hashedPassword,
       contacts: [],
-      chats: [],
+      chats: {},
     });
 
     const savedUser = await createdUser.save();
@@ -44,5 +44,19 @@ export class UserService {
 
   async findUserByUserName(userName: string): Promise<UserDocument | null> {
     return this.userModel.findOne({ userName }).exec();
+  }
+
+  async updateUser(
+    @Body() userName: string,
+    ChatId: string,
+    chatName: string,
+  ): Promise<UserResponse> {
+    const user = await this.userModel.findOne({ userName }).exec();
+    if (!user) {
+      throw new Error('User not found');
+    }
+    user.chats[ChatId] = chatName;
+    const updatedUser = await user.save();
+    return this.mapToUserResponse(updatedUser);
   }
 }
