@@ -3,9 +3,9 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import * as bcrypt from 'bcrypt';
-import { UserResponse } from './Ro/user.ro';
 import { BCRYPT_SALT_ROUNDS } from 'src/constants/auth.constants';
 import { RegisterDto } from '../../../../common/dto/user.dto';
+import { UserResponse } from '../../../../common/Ro/user.ro';
 @Injectable()
 export class UserService {
   constructor(
