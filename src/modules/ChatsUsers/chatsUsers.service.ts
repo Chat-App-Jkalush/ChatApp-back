@@ -2,8 +2,8 @@ import { Body, Injectable, Query } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ChatsUsers } from 'src/database/schemas/chatsUsers.schema';
-import { CreateChatsUsersDto } from '../../../../common/dto/chatsUsers.dto';
 import { ChatsUsersRo } from './Ro/ChatsUsers.ro';
+import { CreateChatsUsersDto } from '../../../../common/dto/chatsUsers.dto';
 
 @Injectable()
 export class ChatsUsersService {

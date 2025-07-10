@@ -36,7 +36,6 @@ export class MessageService {
   async *getAllByChatIdStream(
     chatId: string,
   ): AsyncGenerator<messageInfoResponse> {
-    // Creates an aggregation pipeline with cursor for memory efficiency
     const cursor = this.messageModel
       .aggregate([
         { $match: { chatId } },
