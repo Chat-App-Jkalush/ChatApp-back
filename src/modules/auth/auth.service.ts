@@ -22,11 +22,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid password');
     }
-    return {
-      userName: user.userName,
-      firstName: user.firstName,
-      lastName: user.lastName,
-    };
+    return this.userService.mapToUserResponse(user);
   }
 
   async register(dto: RegisterDto): Promise<UserResponse> {
@@ -34,19 +30,11 @@ export class AuthService {
       dto.userName,
     );
     if (existingUser) {
-      throw new Error('User already exists');
+      throw new BadRequestException('User already exists');
     }
-
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const newUser = {
-      userName: dto.userName,
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      password: hashedPassword,
-    };
-
-    return this.userService.createUser(newUser);
+    return this.userService.createUser(dto);
   }
+
   generateJwt(user: any): string {
     const payload = { sub: user._id, username: user.userName };
     return jwt.sign(payload, process.env.JWT_SECRET, {

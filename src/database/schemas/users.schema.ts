@@ -23,5 +23,11 @@ export class User {
 
   @Prop({ required: true, minlength: 6 })
   password: string;
+
+  @Prop({ required: true, default: [] })
+  contacts: string[];
+
+  @Prop({ required: true, default: [] })
+  chats: string[];
 }
 export const UserSchema = SchemaFactory.createForClass(User);

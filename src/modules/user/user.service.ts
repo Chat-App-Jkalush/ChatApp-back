@@ -6,17 +6,20 @@ import * as bcrypt from 'bcrypt';
 import { BCRYPT_SALT_ROUNDS } from 'src/constants/auth.constants';
 import { RegisterDto } from '../../../../common/dto/user.dto';
 import { UserResponse } from '../../../../common/Ro/user.ro';
+
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  private mapToUserResponse(user: UserDocument): UserResponse {
+  mapToUserResponse(user: UserDocument): UserResponse {
     return {
       userName: user.userName,
       firstName: user.firstName,
       lastName: user.lastName,
+      contacts: user.contacts,
+      chats: user.chats,
     };
   }
 
@@ -26,14 +29,20 @@ export class UserService {
     const createdUser = new this.userModel({
       ...dto,
       password: hashedPassword,
+      contacts: [],
+      chats: [],
     });
 
     const savedUser = await createdUser.save();
     return this.mapToUserResponse(savedUser);
   }
 
-  async findUserByUserName(userName: string): Promise<User | null> {
+  async getUserByUserName(userName: string): Promise<UserResponse | null> {
     const user = await this.userModel.findOne({ userName }).exec();
-    return user ? user : null;
+    return user ? this.mapToUserResponse(user) : null;
+  }
+
+  async findUserByUserName(userName: string): Promise<UserDocument | null> {
+    return this.userModel.findOne({ userName }).exec();
   }
 }

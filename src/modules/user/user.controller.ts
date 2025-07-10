@@ -11,4 +11,11 @@ export class UserController {
   async createUser(@Body() dto: RegisterDto): Promise<UserResponse> {
     return this.userService.createUser(dto);
   }
+
+  @Get()
+  async getUser(
+    @Query('userName') userName: string,
+  ): Promise<UserResponse | null> {
+    return this.userService.getUserByUserName(userName);
+  }
 }
