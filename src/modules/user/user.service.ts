@@ -84,11 +84,27 @@ export class UserService {
     if (!user) {
       throw new Error('User not found');
     }
-    const total = Object.keys(user.chats).length;
-    const chats = Object.keys(user.chats).slice(
-      (page - 1) * page,
+    const chatNames = Object.values(user.chats);
+    const total = chatNames.length;
+    const chats = chatNames.slice((page - 1) * pageSize, page * pageSize);
+    return { chats, total };
+  }
+
+  async paginatedContacts(
+    userName: string,
+    page: number = 1,
+    pageSize: number = 10,
+  ): Promise<{ contacts: string[]; total: number }> {
+    const user = await this.userModel.findOne({ userName }).exec();
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const contacts = user.contacts ?? [];
+    const total = contacts.length;
+    const pagedContacts = contacts.slice(
+      (page - 1) * pageSize,
       page * pageSize,
     );
-    return { chats, total };
+    return { contacts: pagedContacts, total };
   }
 }

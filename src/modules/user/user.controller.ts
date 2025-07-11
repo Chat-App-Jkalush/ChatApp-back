@@ -35,12 +35,28 @@ export class UserController {
     return this.userService.addContact(userName, contactName);
   }
 
-  @Get('paginated-pages')
+  @Get('paginated-chats')
   async paginatedChats(
-    @Query() userName: string,
-    page: number,
-    pageSize: number,
+    @Query('userName') userName: string,
+    @Query('page') page: string,
+    @Query('pageSize') pageSize: string,
   ) {
-    return this.userService.paginatedChats(userName, page, pageSize);
+    return this.userService.paginatedChats(
+      userName,
+      Number(page),
+      Number(pageSize),
+    );
+  }
+  @Get('paginated-contacts')
+  async paginatedContacts(
+    @Query('userName') userName: string,
+    @Query('page') page: string,
+    @Query('pageSize') pageSize: string,
+  ) {
+    return this.userService.paginatedContacts(
+      userName,
+      Number(page),
+      Number(pageSize),
+    );
   }
 }
