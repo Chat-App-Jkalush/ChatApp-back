@@ -37,7 +37,7 @@ export class AuthService {
 
   generateJwt(user: any): string {
     const payload = { sub: user._id, username: user.userName };
-    return jwt.sign(payload, process.env.JWT_SECRET, {
+    return jwt.sign(payload, process.env.JWT_SECRET || '', {
       expiresIn: '7d',
     });
   }

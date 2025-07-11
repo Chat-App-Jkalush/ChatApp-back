@@ -59,4 +59,36 @@ export class UserService {
     const updatedUser = await user.save();
     return this.mapToUserResponse(updatedUser);
   }
+
+  async addContact(
+    userName: string,
+    contactUserName: string,
+  ): Promise<UserResponse> {
+    const user = await this.userModel.findOne({ userName }).exec();
+    if (!user) {
+      throw new Error('User not found');
+    }
+    if (!user.contacts.includes(contactUserName)) {
+      user.contacts.push(contactUserName);
+    }
+    const updatedUser = await user.save();
+    return this.mapToUserResponse(updatedUser);
+  }
+
+  async paginatedChats(
+    userName: string,
+    page: number = 1,
+    pageSize: number = 10,
+  ): Promise<{ chats: string[]; total: number }> {
+    const user = await this.userModel.findOne({ userName }).exec();
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const total = Object.keys(user.chats).length;
+    const chats = Object.keys(user.chats).slice(
+      (page - 1) * page,
+      page * pageSize,
+    );
+    return { chats, total };
+  }
 }

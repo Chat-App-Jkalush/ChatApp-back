@@ -26,4 +26,21 @@ export class UserController {
     const { userName, chatId, chatName } = body;
     return this.userService.updateUser(userName, chatId, chatName);
   }
+
+  @Post('add-contact')
+  async addContact(
+    @Body() body: { userName: string; contactName: string },
+  ): Promise<UserResponse> {
+    const { userName, contactName } = body;
+    return this.userService.addContact(userName, contactName);
+  }
+
+  @Get('paginated-pages')
+  async paginatedChats(
+    @Query() userName: string,
+    page: number,
+    pageSize: number,
+  ) {
+    return this.userService.paginatedChats(userName, page, pageSize);
+  }
 }
