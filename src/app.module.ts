@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MessagesModule } from './modules/message/message.module';
 import { ContactModule } from './modules/contact/constact.module';
+import { UserCookieModule } from './modules/userCookie/userCookie.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ContactModule } from './modules/contact/constact.module';
     AuthModule,
     ChatModule,
     ContactModule,
+    UserCookieModule,
   ],
   controllers: [AppController],
   providers: [AppService],
