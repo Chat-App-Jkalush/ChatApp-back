@@ -8,9 +8,15 @@ export class UserCookieController {
 
   @Post('save')
   async saveUserCookie(
-    @Body() body: { userDetails: UserCookie; cookie: string },
+    @Body()
+    body: {
+      userName: string;
+      firstName: string;
+      lastName: string;
+      cookie: string;
+    },
   ): Promise<UserCookie> {
-    return this.userCookieService.saveUserCookie(body.userDetails, body.cookie);
+    return this.userCookieService.saveUserCookie(body);
   }
 
   @Get('get')

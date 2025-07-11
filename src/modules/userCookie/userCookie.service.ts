@@ -9,11 +9,13 @@ export class UserCookieService {
     @InjectModel(UserCookie.name) private readonly userModel: Model<UserCookie>,
   ) {}
 
-  async saveUserCookie(
-    userDetails: UserCookie,
-    cookie: string,
-  ): Promise<UserCookie> {
-    const userCookie = new this.userModel({ userDetails, cookie });
+  async saveUserCookie(body: {
+    userName: string;
+    firstName: string;
+    lastName: string;
+    cookie: string;
+  }): Promise<UserCookie> {
+    const userCookie = new this.userModel(body);
     return await userCookie.save();
   }
 
