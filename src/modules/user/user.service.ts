@@ -18,8 +18,6 @@ export class UserService {
       userName: user.userName,
       firstName: user.firstName,
       lastName: user.lastName,
-      contacts: user.contacts,
-      chats: user.chats,
     };
   }
 
@@ -60,21 +58,6 @@ export class UserService {
     return this.mapToUserResponse(updatedUser);
   }
 
-  async addContact(
-    userName: string,
-    contactUserName: string,
-  ): Promise<UserResponse> {
-    const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) {
-      throw new Error('User not found');
-    }
-    if (!user.contacts.includes(contactUserName)) {
-      user.contacts.push(contactUserName);
-    }
-    const updatedUser = await user.save();
-    return this.mapToUserResponse(updatedUser);
-  }
-
   async paginatedChats(
     userName: string,
     page: number = 1,
@@ -88,23 +71,5 @@ export class UserService {
     const total = chatNames.length;
     const chats = chatNames.slice((page - 1) * pageSize, page * pageSize);
     return { chats, total };
-  }
-
-  async paginatedContacts(
-    userName: string,
-    page: number = 1,
-    pageSize: number = 10,
-  ): Promise<{ contacts: string[]; total: number }> {
-    const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const contacts = user.contacts ?? [];
-    const total = contacts.length;
-    const pagedContacts = contacts.slice(
-      (page - 1) * pageSize,
-      page * pageSize,
-    );
-    return { contacts: pagedContacts, total };
   }
 }

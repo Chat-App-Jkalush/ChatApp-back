@@ -7,6 +7,7 @@ import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MessagesModule } from './modules/message/message.module';
+import { ContactModule } from './contact/constact.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { MessagesModule } from './modules/message/message.module';
     MessagesModule,
     AuthModule,
     ChatModule,
+    ContactModule,
   ],
   controllers: [AppController],
   providers: [AppService],
