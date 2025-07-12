@@ -2,6 +2,7 @@ import { Controller, Post, Body, Query, Get, Put } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterDto } from '../../../../common/dto/user.dto';
 import { UserResponse } from '../../../../common/Ro/user.ro';
+import { UserUpdateDto } from '../../../dist/common/dto/user.dto';
 
 @Controller('users')
 export class UserController {
@@ -21,10 +22,9 @@ export class UserController {
 
   @Put('update')
   async updateUser(
-    @Body() body: { userName: string; chatId: string; chatName: string },
+    @Body() body: Partial<UserUpdateDto>,
   ): Promise<UserResponse> {
-    const { userName, chatId, chatName } = body;
-    return this.userService.updateUser(userName, chatId, chatName);
+    return this.userService.updateUserProfile(body);
   }
 
   @Get('paginated-chats')

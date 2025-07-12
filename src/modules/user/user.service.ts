@@ -44,16 +44,27 @@ export class UserService {
     return this.userModel.findOne({ userName }).exec();
   }
 
-  async updateUser(
-    @Body() userName: string,
-    ChatId: string,
-    chatName: string,
+  async updateUserProfile(
+    body: Partial<{
+      userName: string;
+      firstName: string;
+      lastName: string;
+      password: string;
+    }>,
   ): Promise<UserResponse> {
-    const user = await this.userModel.findOne({ userName }).exec();
+    const user = await this.userModel
+      .findOne({ userName: body.userName })
+      .exec();
     if (!user) {
       throw new Error('User not found');
     }
-    user.chats[ChatId] = chatName;
+
+    if (body.firstName !== undefined) user.firstName = body.firstName;
+    if (body.lastName !== undefined) user.lastName = body.lastName;
+    if (body.password !== undefined) {
+      user.password = await bcrypt.hash(body.password, BCRYPT_SALT_ROUNDS);
+    }
+
     const updatedUser = await user.save();
     return this.mapToUserResponse(updatedUser);
   }
