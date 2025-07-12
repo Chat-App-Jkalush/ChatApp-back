@@ -72,4 +72,20 @@ export class UserService {
     const chats = chatNames.slice((page - 1) * pageSize, page * pageSize);
     return { chats, total };
   }
+
+  async paginatedUsers(
+    page: number = 1,
+    pageSize: number = 10,
+  ): Promise<{ users: UserResponse[]; total: number }> {
+    const total = await this.userModel.countDocuments();
+    const users = await this.userModel
+      .find({})
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .exec();
+    return {
+      users: users.map((user) => this.mapToUserResponse(user)),
+      total,
+    };
+  }
 }
