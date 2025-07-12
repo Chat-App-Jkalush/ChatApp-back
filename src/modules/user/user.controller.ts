@@ -42,9 +42,14 @@ export class UserController {
 
   @Get('paginated-users')
   async paginatedUsers(
+    @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
   ) {
-    return this.userService.paginatedUsers(Number(page), Number(pageSize));
+    return this.userService.paginatedUsers(
+      userName,
+      Number(page),
+      Number(pageSize),
+    );
   }
 }

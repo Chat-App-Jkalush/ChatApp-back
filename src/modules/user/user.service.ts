@@ -74,15 +74,23 @@ export class UserService {
   }
 
   async paginatedUsers(
+    userName: string,
     page: number = 1,
     pageSize: number = 10,
   ): Promise<{ users: UserResponse[]; total: number }> {
-    const total = await this.userModel.countDocuments();
+    const currentUser = await this.userModel.findOne({ userName }).exec();
+    const contacts = currentUser?.contacts || [];
+
+    const exclude = [userName, ...contacts];
+
+    const query = { userName: { $nin: exclude } };
+    const total = await this.userModel.countDocuments(query);
     const users = await this.userModel
-      .find({})
+      .find(query)
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .exec();
+
     return {
       users: users.map((user) => this.mapToUserResponse(user)),
       total,
