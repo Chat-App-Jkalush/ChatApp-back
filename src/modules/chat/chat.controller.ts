@@ -8,14 +8,16 @@ export class ChatsController {
   constructor(private chatService: ChatService) {}
 
   @Post()
-  async createChat(@Body() dto: CreateChatDto): Promise<ChatRo> {
-    return this.chatService.createChat(dto);
+  async createChat(
+    @Body() dto: CreateChatDto,
+  ): Promise<{ chatId: string; chatName: string }> {
+    return await this.chatService.createChat(dto);
   }
 
   @Post('add-user-to-chat')
   async addUserToChat(
     @Body() dto: { userName: string; chatId: string },
-  ): Promise<ChatRo> {
+  ): Promise<Partial<ChatRo>> {
     return this.chatService.addUserToChat(dto.userName, dto.chatId);
   }
 

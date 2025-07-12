@@ -1,4 +1,4 @@
-import { Body, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/database/schemas/chats.schema';
@@ -13,7 +13,9 @@ export class ChatService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async createChat(dto: CreateChatDto): Promise<ChatRo> {
+  async createChat(
+    dto: CreateChatDto,
+  ): Promise<{ chatId: string; chatName: string }> {
     const createdChat = new this.chatModel({
       chatName: dto.chatName,
       messages: [],
@@ -22,11 +24,15 @@ export class ChatService {
     const savedChat = await createdChat.save();
 
     return {
+      chatId: savedChat._id.toString(),
       chatName: savedChat.chatName,
     };
   }
 
-  async addUserToChat(userName: string, chatId: string): Promise<ChatRo> {
+  async addUserToChat(
+    userName: string,
+    chatId: string,
+  ): Promise<Partial<ChatRo>> {
     const chat = await this.chatModel.findById(chatId);
     if (!chat) {
       throw new Error('Chat not found');
@@ -48,10 +54,10 @@ export class ChatService {
     chatName: string,
   ): Promise<void> {
     const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) {
-      throw new Error('User not found');
-    }
+    if (!user) throw new Error('User not found');
+    if (!user.chats || typeof user.chats !== 'object') user.chats = {};
     user.chats[chatId] = chatName;
+    user.markModified('chats');
     await user.save();
   }
 
@@ -59,14 +65,16 @@ export class ChatService {
     userName: string,
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<{ chats: string[]; total: number }> {
+  ): Promise<{ chats: { chatId: string; chatName: string }[]; total: number }> {
     const user = await this.userModel.findOne({ userName }).exec();
     if (!user) {
       throw new Error('User not found');
     }
-    const chatNames = Object.values(user.chats);
-    const total = chatNames.length;
-    const chats = chatNames.slice((page - 1) * pageSize, page * pageSize);
+    const chatEntries = Object.entries(user.chats);
+    const total = chatEntries.length;
+    const chats = chatEntries
+      .slice((page - 1) * pageSize, page * pageSize)
+      .map(([chatId, chatName]) => ({ chatId, chatName }));
     return { chats, total };
   }
 }
