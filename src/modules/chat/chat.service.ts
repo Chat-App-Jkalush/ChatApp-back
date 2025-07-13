@@ -6,6 +6,7 @@ import { CreateChatDto } from '../../../../common/dto/chat.dto';
 import { ChatRo } from '../../../../common/Ro/chat.ro';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import { chatType } from '../../../../common/enums/chat.enum';
+import { Message } from '../../../../common/dto/message.dto';
 
 @Injectable()
 export class ChatService {
@@ -104,5 +105,13 @@ export class ChatService {
       chatName: chat.chatName,
       type: chat.type,
     };
+  }
+
+  async addMessageToChat(chatId: string, messageId: string): Promise<void> {
+    const chat = await this.chatModel.findById(chatId).exec();
+    if (!chat) {
+      throw new Error('Chat not found');
+    }
+    chat.messages.push(messageId);
   }
 }

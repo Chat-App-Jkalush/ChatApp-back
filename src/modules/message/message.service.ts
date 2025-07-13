@@ -25,6 +25,12 @@ export class MessageService {
     };
   }
 
+  async createAndGetId(@Body() dto: CreateMessageDto): Promise<string> {
+    const createdMessage = new this.messageModel(dto);
+    const savedMessage = await createdMessage.save();
+    return savedMessage._id.toString();
+  }
+
   async getById(@Query() messageId: string): Promise<messageInfoResponse> {
     const message = await this.messageModel.findById(messageId).exec();
     if (!message) {
