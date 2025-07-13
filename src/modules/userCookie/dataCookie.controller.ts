@@ -25,4 +25,14 @@ export class DataCookieController {
   ): Promise<DataCookie | null> {
     return this.dataCookieService.getUserCookie(cookie);
   }
+
+  @Post('set-latest-chat')
+  async setLatestChatId(
+    @Body() body: { userName: string; latestChatId: string },
+  ): Promise<DataCookie | null> {
+    return this.dataCookieService.setLatestChatId(
+      body.userName,
+      body.latestChatId,
+    );
+  }
 }
