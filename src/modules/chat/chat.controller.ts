@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Query } from '@nestjs/common';
+import { Body, Controller, Post, Get, Query, Param } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { CreateChatDto } from '../../../../common/dto/chat.dto';
 import { ChatRo } from '../../../../common/Ro/chat.ro';
@@ -46,5 +46,10 @@ export class ChatsController {
       Number(page),
       Number(pageSize),
     );
+  }
+
+  @Get('paginated/:chatId')
+  async getChatById(@Param('chatId') chatId: string) {
+    return this.chatService.getChatById(chatId);
   }
 }

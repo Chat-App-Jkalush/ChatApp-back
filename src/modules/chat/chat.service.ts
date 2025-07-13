@@ -5,6 +5,7 @@ import { Chat } from 'src/database/schemas/chats.schema';
 import { CreateChatDto } from '../../../../common/dto/chat.dto';
 import { ChatRo } from '../../../../common/Ro/chat.ro';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
+import { chatType } from '../../../../common/enums/chat.enum';
 
 @Injectable()
 export class ChatService {
@@ -91,5 +92,17 @@ export class ChatService {
     }));
 
     return { chats: chatList, total };
+  }
+
+  async getChatById(chatId: string) {
+    const chat = await this.chatModel.findById(chatId).exec();
+    if (!chat) {
+      throw new Error('Chat not found');
+    }
+    return {
+      chatId: chat._id.toString(),
+      chatName: chat.chatName,
+      type: chat.type,
+    };
   }
 }
