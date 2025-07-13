@@ -37,7 +37,10 @@ export class ChatsController {
     @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
-  ) {
+  ): Promise<{
+    chats: { chatId: string; chatName: string; type: string }[];
+    total: number;
+  }> {
     return this.chatService.paginatedChats(
       userName,
       Number(page),
