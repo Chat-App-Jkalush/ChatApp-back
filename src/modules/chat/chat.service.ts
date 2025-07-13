@@ -20,6 +20,7 @@ export class ChatService {
       chatName: dto.chatName,
       messages: [],
       participants: dto.participants ?? [],
+      type: dto.type,
     });
     const savedChat = await createdChat.save();
 
