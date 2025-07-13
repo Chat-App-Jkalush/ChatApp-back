@@ -1,5 +1,14 @@
-import { Controller, Post, Get, Body, Query } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Query,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { ContactService } from './contact.service';
+import { RemoveContactDto } from '../../../../common/dto/contact.dto';
 
 @Controller('contacts')
 export class ContactController {
@@ -21,5 +30,17 @@ export class ContactController {
       Number(page),
       Number(pageSize),
     );
+  }
+
+  @Post('remove')
+  async removeContact(@Body() dto: RemoveContactDto) {
+    try {
+      return await this.contactService.removeContact(dto);
+    } catch (error) {
+      throw new HttpException(
+        error.message || 'Failed to remove contact',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

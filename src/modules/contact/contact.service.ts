@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/database/schemas/users.schema';
+import { RemoveContactDto } from '../../../../common/dto/contact.dto';
 
 @Injectable()
 export class ContactService {
@@ -34,5 +35,20 @@ export class ContactService {
       page * pageSize,
     );
     return { contacts: pagedContacts, total };
+  }
+
+  async removeContact(dto: RemoveContactDto): Promise<User> {
+    const user = await this.userModel
+      .findOne({ userName: dto.userName })
+      .exec();
+    if (!user) throw new Error('User not found');
+    const contactIndex = user.contacts.indexOf(dto.contactName);
+    if (contactIndex > -1) {
+      user.contacts.splice(contactIndex, 1);
+      await user.save();
+      return user;
+    } else {
+      throw new Error('Contact not found');
+    }
   }
 }
