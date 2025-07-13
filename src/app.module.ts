@@ -8,7 +8,8 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MessagesModule } from './modules/message/message.module';
 import { ContactModule } from './modules/contact/constact.module';
-import { UserCookieModule } from './modules/userCookie/userCookie.module';
+import { DataCookieModule } from './modules/userCookie/dataCookie.module';
+import { DataCookie } from './database/schemas/dataCookie.schema';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { UserCookieModule } from './modules/userCookie/userCookie.module';
     AuthModule,
     ChatModule,
     ContactModule,
-    UserCookieModule,
+    DataCookieModule,
   ],
   controllers: [AppController],
   providers: [AppService],
