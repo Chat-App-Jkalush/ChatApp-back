@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { chatType } from '../../../../common/enums/chat.enum';
 
 @Schema({
   timestamps: true,
@@ -13,5 +14,8 @@ export class Chat {
 
   @Prop({ required: true, type: [String], default: [] })
   participants: string[];
+
+  @Prop({ required: true, enum: Object.values(chatType), default: chatType.DM })
+  type: chatType;
 }
 export const ChatSchema = SchemaFactory.createForClass(Chat);

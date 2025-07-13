@@ -20,6 +20,7 @@ export class ChatService {
       chatName: dto.chatName,
       messages: [],
       participants: dto.participants ?? [],
+      type: dto.type,
     });
     const savedChat = await createdChat.save();
 
@@ -65,16 +66,30 @@ export class ChatService {
     userName: string,
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<{ chats: { chatId: string; chatName: string }[]; total: number }> {
+  ): Promise<{
+    chats: { chatId: string; chatName: string; type: string }[];
+    total: number;
+  }> {
     const user = await this.userModel.findOne({ userName }).exec();
     if (!user) {
       throw new Error('User not found');
     }
     const chatEntries = Object.entries(user.chats);
     const total = chatEntries.length;
-    const chats = chatEntries
+    const pagedChatIds = chatEntries
       .slice((page - 1) * pageSize, page * pageSize)
-      .map(([chatId, chatName]) => ({ chatId, chatName }));
-    return { chats, total };
+      .map(([chatId]) => chatId);
+
+    const chats = await this.chatModel
+      .find({ _id: { $in: pagedChatIds } })
+      .exec();
+
+    const chatList = chats.map((chat) => ({
+      chatId: chat._id.toString(),
+      chatName: chat.chatName,
+      type: chat.type,
+    }));
+
+    return { chats: chatList, total };
   }
 }
