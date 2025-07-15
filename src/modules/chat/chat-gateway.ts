@@ -8,7 +8,7 @@ import {
 import { DEFAULT_PORT, EVENTS } from 'src/constants/gateway.contants';
 import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
-import { CreateMessageDto, Message } from '../../../../common/dto/message.dto';
+import { CreateMessageDto } from '../../../../common/dto/message.dto';
 import { MessageService } from '../message/message.service';
 @WebSocketGateway(DEFAULT_PORT, {})
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
