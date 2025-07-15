@@ -149,4 +149,20 @@ export class ChatService {
         throw new Error(`Error retrieving participants: ${error.message}`);
       });
   }
+
+  async leaveChat(userName: string, chatId: string): Promise<boolean> {
+    try {
+      const chat = await this.chatModel.findById(chatId);
+      if (!chat) {
+        throw new Error('Chat not found');
+      }
+      chat.participants = chat.participants.filter(
+        (participant) => participant !== userName,
+      );
+      await chat.save();
+      return true;
+    } catch (error) {
+      throw new Error(`Error leaving chat: ${error.message}`);
+    }
+  }
 }

@@ -60,4 +60,11 @@ export class ChatsController {
     const participants = await this.chatService.getChatParticipants(chatId);
     return { participants };
   }
+
+  @Post('leave-chat')
+  async leaveChat(
+    @Body() dto: { userName: string; chatId: string },
+  ): Promise<boolean> {
+    return this.chatService.leaveChat(dto.userName, dto.chatId);
+  }
 }
