@@ -114,4 +114,20 @@ export class ChatService {
     }
     chat.messages.push(messageId);
   }
+
+  async getChatsByUser(
+    userName: string,
+  ): Promise<{ chatId: string; chatName: string; type: string }[]> {
+    const user = await this.userModel.findOne({ userName }).exec();
+    if (!user) {
+      throw new Error('User not found');
+    }
+    const chatIds = Object.keys(user.chats || {});
+    const chats = await this.chatModel.find({ _id: { $in: chatIds } }).exec();
+    return chats.map((chat) => ({
+      chatId: chat._id.toString(),
+      chatName: chat.chatName,
+      type: chat.type,
+    }));
+  }
 }
