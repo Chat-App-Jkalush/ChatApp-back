@@ -17,9 +17,10 @@ export class ChatService {
 
   async createChat(
     dto: CreateChatDto,
-  ): Promise<{ chatId: string; chatName: string }> {
+  ): Promise<{ chatId: string; chatName: string; description: string }> {
     const createdChat = new this.chatModel({
       chatName: dto.chatName,
+      description: dto.description,
       messages: [],
       participants: dto.participants ?? [],
       type: dto.type,
@@ -29,6 +30,7 @@ export class ChatService {
     return {
       chatId: savedChat._id.toString(),
       chatName: savedChat.chatName,
+      description: savedChat.description,
     };
   }
 
@@ -48,6 +50,7 @@ export class ChatService {
 
     return {
       chatName: chat.chatName,
+      description: chat.description,
     };
   }
 
@@ -69,7 +72,12 @@ export class ChatService {
     page: number = 1,
     pageSize: number = 10,
   ): Promise<{
-    chats: { chatId: string; chatName: string; type: string }[];
+    chats: {
+      chatId: string;
+      chatName: string;
+      type: string;
+      description: string;
+    }[];
     total: number;
   }> {
     const chats = await this.chatModel
@@ -86,6 +94,7 @@ export class ChatService {
       chatId: chat._id.toString(),
       chatName: chat.chatName,
       type: chat.type,
+      description: chat.description,
     }));
 
     return { chats: chatList, total };
@@ -100,6 +109,7 @@ export class ChatService {
       chatId: chat._id.toString(),
       chatName: chat.chatName,
       type: chat.type,
+      description: chat.description,
     };
   }
 
@@ -109,16 +119,20 @@ export class ChatService {
       throw new Error('Chat not found');
     }
     chat.messages.push(messageId);
+    await chat.save();
   }
 
   async getChatsByUser(
     userName: string,
-  ): Promise<{ chatId: string; chatName: string; type: string }[]> {
+  ): Promise<
+    { chatId: string; chatName: string; type: string; description: string }[]
+  > {
     const chats = await this.chatModel.find({ participants: userName }).exec();
     return chats.map((chat) => ({
       chatId: chat._id.toString(),
       chatName: chat.chatName,
       type: chat.type,
+      description: chat.description,
     }));
   }
 }
