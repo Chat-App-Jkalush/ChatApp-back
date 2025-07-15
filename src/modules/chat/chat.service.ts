@@ -135,4 +135,18 @@ export class ChatService {
       description: chat.description,
     }));
   }
+
+  getChatParticipants(chatId: string): Promise<string[]> {
+    return this.chatModel
+      .findById(chatId)
+      .then((chat) => {
+        if (!chat) {
+          throw new Error('Chat not found');
+        }
+        return chat.participants;
+      })
+      .catch((error) => {
+        throw new Error(`Error retrieving participants: ${error.message}`);
+      });
+  }
 }

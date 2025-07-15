@@ -52,4 +52,12 @@ export class ChatsController {
   async getChatById(@Param('chatId') chatId: string) {
     return this.chatService.getChatById(chatId);
   }
+
+  @Get('get-chat-participents/:chatId')
+  async getChatUsers(
+    @Param('chatId') chatId: string,
+  ): Promise<{ participants: string[] }> {
+    const participants = await this.chatService.getChatParticipants(chatId);
+    return { participants };
+  }
 }
