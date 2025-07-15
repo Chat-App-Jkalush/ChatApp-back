@@ -39,6 +39,7 @@ export class MessageService {
     return {
       sender: message.sender,
       content: message.content,
+      createdAt: message.createdAt || new Date(),
     };
   }
 
@@ -57,6 +58,7 @@ export class MessageService {
         yield {
           sender: document.sender,
           content: document.content,
+          createdAt: document.createdAt || new Date(),
         };
       }
     } finally {
