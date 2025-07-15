@@ -5,7 +5,6 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-
 import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
 import { CreateMessageDto } from '../../../../common/dto/message.dto';
@@ -35,19 +34,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(EVENTS.JOIN_CHAT)
   async handleJoinChat(client: Socket, payload: { userName: string }) {
     const { userName } = payload;
-
     const previousSocket = this.userNameToSocket.get(userName);
     if (previousSocket && previousSocket.id !== client.id) {
       previousSocket.disconnect(true);
     }
-
     this.userNameToSocket.set(userName, client);
-
     const userChats = await this.chatService.getChatsByUser(userName);
     for (const chat of userChats) {
       const chatId = chat.chatId;
       if (!chatId) continue;
-
       if (!this.chatIdToSockets.has(chatId)) {
         this.chatIdToSockets.set(chatId, new Set());
       }
@@ -62,17 +57,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     payload: { chatId: string; userName: string },
   ) {
     const { chatId, userName } = payload;
-
     const leaveMessage: CreateMessageDto = {
       chatId,
       sender: SYSTEM,
       content: `${userName} has left the chat.`,
     };
-
     const messageId = await this.messageService.createAndGetId(leaveMessage);
-
     await this.chatService.addMessageToChat(chatId, messageId);
-
     const sockets = this.chatIdToSockets.get(chatId);
     if (sockets) {
       sockets.forEach((socket) => {
@@ -80,17 +71,22 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     }
   }
+
   @SubscribeMessage(EVENTS.NEW_MESSAGE)
   async handleNewMessage(client: Socket, message: CreateMessageDto) {
     const messageId = await this.messageService.createAndGetId(message);
     await this.chatService.addMessageToChat(message.chatId, messageId);
-
-    const sockets = this.chatIdToSockets.get(message.chatId);
-    if (sockets) {
-      sockets.forEach((socket) => {
-        socket.emit(EVENTS.REPLY, message);
-      });
+    if (!this.chatIdToSockets.has(message.chatId)) {
+      this.chatIdToSockets.set(message.chatId, new Set());
     }
+    const socketsSet = this.chatIdToSockets.get(message.chatId)!;
+    if (!socketsSet.has(client)) {
+      socketsSet.add(client);
+      client.join(message.chatId);
+    }
+    socketsSet.forEach((socket) => {
+      socket.emit(EVENTS.REPLY, message);
+    });
   }
 
   handleDisconnect(client: Socket) {
