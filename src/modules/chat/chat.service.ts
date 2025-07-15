@@ -72,19 +72,15 @@ export class ChatService {
     chats: { chatId: string; chatName: string; type: string }[];
     total: number;
   }> {
-    const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const chatEntries = Object.entries(user.chats);
-    const total = chatEntries.length;
-    const pagedChatIds = chatEntries
-      .slice((page - 1) * pageSize, page * pageSize)
-      .map(([chatId]) => chatId);
-
     const chats = await this.chatModel
-      .find({ _id: { $in: pagedChatIds } })
+      .find({ participants: userName })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
       .exec();
+
+    const total = await this.chatModel.countDocuments({
+      participants: userName,
+    });
 
     const chatList = chats.map((chat) => ({
       chatId: chat._id.toString(),
@@ -118,12 +114,7 @@ export class ChatService {
   async getChatsByUser(
     userName: string,
   ): Promise<{ chatId: string; chatName: string; type: string }[]> {
-    const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const chatIds = Object.keys(user.chats || {});
-    const chats = await this.chatModel.find({ _id: { $in: chatIds } }).exec();
+    const chats = await this.chatModel.find({ participants: userName }).exec();
     return chats.map((chat) => ({
       chatId: chat._id.toString(),
       chatName: chat.chatName,
