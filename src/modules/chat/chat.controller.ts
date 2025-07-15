@@ -10,7 +10,7 @@ export class ChatsController {
   @Post()
   async createChat(
     @Body() dto: CreateChatDto,
-  ): Promise<{ chatId: string; chatName: string }> {
+  ): Promise<{ chatId: string; chatName: string; description: string }> {
     return await this.chatService.createChat(dto);
   }
 

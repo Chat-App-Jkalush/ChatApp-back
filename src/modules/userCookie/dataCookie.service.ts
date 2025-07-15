@@ -13,7 +13,7 @@ export class DataCookieService {
     firstName: string;
     lastName: string;
     cookie: string;
-    latestChatId?: string; // <-- add this
+    latestChatId?: string;
   }): Promise<DataCookie> {
     const userCookie = new this.userModel(body);
     return await userCookie.save();

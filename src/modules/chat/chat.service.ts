@@ -18,6 +18,7 @@ export class ChatService {
   async createChat(
     dto: CreateChatDto,
   ): Promise<{ chatId: string; chatName: string; description: string }> {
+    console.log('CreateChatDto:', dto);
     const createdChat = new this.chatModel({
       chatName: dto.chatName,
       description: dto.description,
@@ -26,6 +27,7 @@ export class ChatService {
       type: dto.type,
     });
     const savedChat = await createdChat.save();
+    console.log('Saved chat:', savedChat);
 
     return {
       chatId: savedChat._id.toString(),
