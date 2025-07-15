@@ -14,7 +14,9 @@ import {
   CLIENT_ORIGIN,
   DEFAULT_PORT,
   EVENTS,
+  SYSTEM,
 } from '../../../../common/constatns/gateway.contants';
+import { Message } from 'src/database/schemas/message.schema';
 
 @WebSocketGateway(DEFAULT_PORT, { cors: { origin: CLIENT_ORIGIN } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -54,6 +56,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
+  @SubscribeMessage(EVENTS.LEAVE_CHAT)
+  async handleLeaveChat(
+    client: Socket,
+    payload: { chatId: string; userName: string },
+  ) {
+    const { chatId, userName } = payload;
+
+    const leaveMessage: CreateMessageDto = {
+      chatId,
+      sender: SYSTEM,
+      content: `${userName} has left the chat.`,
+    };
+
+    const messageId = await this.messageService.createAndGetId(leaveMessage);
+
+    await this.chatService.addMessageToChat(chatId, messageId);
+
+    const sockets = this.chatIdToSockets.get(chatId);
+    if (sockets) {
+      sockets.forEach((socket) => {
+        socket.emit(EVENTS.REPLY, leaveMessage);
+      });
+    }
+  }
   @SubscribeMessage(EVENTS.NEW_MESSAGE)
   async handleNewMessage(client: Socket, message: CreateMessageDto) {
     const messageId = await this.messageService.createAndGetId(message);

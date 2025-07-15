@@ -101,7 +101,10 @@ export class ChatService {
   }
 
   async getChatById(chatId: string) {
-    const chat = await this.chatModel.findById(chatId).exec();
+    const chat = await this.chatModel
+      .findById(chatId)
+      .populate('messages')
+      .exec();
     if (!chat) {
       throw new Error('Chat not found');
     }
@@ -110,6 +113,7 @@ export class ChatService {
       chatName: chat.chatName,
       type: chat.type,
       description: chat.description,
+      messages: chat.messages,
     };
   }
 
@@ -141,7 +145,7 @@ export class ChatService {
       .findById(chatId)
       .then((chat) => {
         if (!chat) {
-          throw new Error('Chat not found');
+          throw new Error('Chat was not found');
         }
         return chat.participants;
       })
