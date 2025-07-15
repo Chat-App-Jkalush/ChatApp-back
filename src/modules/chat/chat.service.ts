@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpCode,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/database/schemas/chats.schema';
@@ -40,7 +45,7 @@ export class ChatService {
   ): Promise<Partial<ChatRo>> {
     const chat = await this.chatModel.findById(chatId);
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new NotFoundException('Chat not found');
     }
 
     if (!chat.participants.includes(userName)) {

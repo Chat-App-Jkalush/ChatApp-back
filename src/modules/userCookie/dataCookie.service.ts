@@ -10,13 +10,16 @@ export class DataCookieService {
 
   async saveUserCookie(body: {
     userName: string;
-    firstName: string;
-    lastName: string;
     cookie: string;
     latestChatId?: string;
   }): Promise<DataCookie> {
-    const userCookie = new this.userModel(body);
-    return await userCookie.save();
+    return await this.userModel
+      .findOneAndUpdate(
+        { cookie: body.cookie },
+        { $set: body },
+        { upsert: true, new: true },
+      )
+      .exec();
   }
 
   async getUserCookie(cookie: string): Promise<DataCookie | null> {
