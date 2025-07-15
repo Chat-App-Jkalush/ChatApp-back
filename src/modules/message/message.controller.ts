@@ -24,29 +24,15 @@ export class MessageController {
   }
 
   @Get('by-chat')
-  async streamAllByChatId(
+  async getAllByChatId(
     @Query('chatId') chatId: string,
-    @Res() res: Response,
-  ) {
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Transfer-Encoding', 'chunked');
-
-    try {
-      res.write('[');
-
-      let first = true;
-      for await (const message of this.messageService.getAllByChatIdStream(
-        chatId,
-      )) {
-        if (!first) res.write(',');
-        res.write(JSON.stringify(message));
-        first = false;
-      }
-
-      res.write(']');
-      res.end();
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to stream messages' });
+  ): Promise<messageInfoResponse[]> {
+    const messages: messageInfoResponse[] = [];
+    for await (const message of this.messageService.getAllByChatIdStream(
+      chatId,
+    )) {
+      messages.push(message);
     }
+    return messages;
   }
 }

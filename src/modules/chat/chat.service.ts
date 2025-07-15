@@ -6,6 +6,7 @@ import { CreateChatDto } from '../../../../common/dto/chat.dto';
 import { ChatRo } from '../../../../common/Ro/chat.ro';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import { chatType } from '../../../../common/enums/chat.enum';
+import { Message } from '../../../../common/dto/message.dto';
 
 @Injectable()
 export class ChatService {
@@ -71,19 +72,15 @@ export class ChatService {
     chats: { chatId: string; chatName: string; type: string }[];
     total: number;
   }> {
-    const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const chatEntries = Object.entries(user.chats);
-    const total = chatEntries.length;
-    const pagedChatIds = chatEntries
-      .slice((page - 1) * pageSize, page * pageSize)
-      .map(([chatId]) => chatId);
-
     const chats = await this.chatModel
-      .find({ _id: { $in: pagedChatIds } })
+      .find({ participants: userName })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
       .exec();
+
+    const total = await this.chatModel.countDocuments({
+      participants: userName,
+    });
 
     const chatList = chats.map((chat) => ({
       chatId: chat._id.toString(),
@@ -104,5 +101,24 @@ export class ChatService {
       chatName: chat.chatName,
       type: chat.type,
     };
+  }
+
+  async addMessageToChat(chatId: string, messageId: string): Promise<void> {
+    const chat = await this.chatModel.findById(chatId).exec();
+    if (!chat) {
+      throw new Error('Chat not found');
+    }
+    chat.messages.push(messageId);
+  }
+
+  async getChatsByUser(
+    userName: string,
+  ): Promise<{ chatId: string; chatName: string; type: string }[]> {
+    const chats = await this.chatModel.find({ participants: userName }).exec();
+    return chats.map((chat) => ({
+      chatId: chat._id.toString(),
+      chatName: chat.chatName,
+      type: chat.type,
+    }));
   }
 }
