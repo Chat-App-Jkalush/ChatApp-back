@@ -49,7 +49,7 @@ export class MessageService {
     const cursor = this.messageModel
       .aggregate([
         { $match: { chatId } },
-        { $project: { sender: 1, content: 1, _id: 0 } },
+        { $project: { sender: 1, content: 1, createdAt: 1, _id: 0 } },
       ])
       .cursor({ batchSize: 1000 });
 

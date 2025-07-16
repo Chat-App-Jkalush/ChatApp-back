@@ -76,7 +76,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     }
   }
-
   @SubscribeMessage(EVENTS.NEW_MESSAGE)
   async handleNewMessage(client: Socket, message: CreateMessageDto) {
     const messageId = await this.messageService.createAndGetId(message);
