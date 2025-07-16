@@ -7,7 +7,11 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/database/schemas/chats.schema';
-import { CreateChatDto } from '../../../../common/dto/chat.dto';
+import {
+  CreateChatDto,
+  DeleteDmDto,
+  DmExitsDto,
+} from '../../../../common/dto/chat.dto';
 import { ChatRo } from '../../../../common/Ro/chat.ro';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import { chatType } from '../../../../common/enums/chat.enum';
@@ -173,5 +177,34 @@ export class ChatService {
     } catch (error) {
       throw new Error(`Error leaving chat: ${error.message}`);
     }
+  }
+
+  async dmExists(dto: DmExitsDto): Promise<boolean> {
+    const { userName1, userName2 } = dto;
+    const chat = await this.chatModel.findOne({
+      type: chatType.DM,
+      participants: { $all: [userName1, userName2] },
+    });
+    return !!chat;
+  }
+
+  async findDm(dto: DeleteDmDto): Promise<string> {
+    const chat = await this.chatModel.findOne({
+      type: chatType.DM,
+      participants: { $all: [dto.userName1, dto.userName2] },
+    });
+    if (!chat) {
+      throw new NotFoundException('Direct message not found');
+    }
+    return chat._id.toString();
+  }
+
+  async deleteDm(dto: DeleteDmDto) {
+    const chatId = await this.findDm(dto);
+    const result = await this.chatModel.deleteOne({ _id: chatId });
+    if (result.deletedCount === 0) {
+      throw new InternalServerErrorException('Failed to delete direct message');
+    }
+    return { message: 'Direct message deleted successfully' };
   }
 }

@@ -15,7 +15,7 @@ export class DataCookieService {
   }): Promise<DataCookie> {
     return await this.userModel
       .findOneAndUpdate(
-        { cookie: body.cookie },
+        { userName: body.userName },
         { $set: body },
         { upsert: true, new: true },
       )

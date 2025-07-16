@@ -3,6 +3,7 @@ import { ChatService } from './chat.service';
 import {
   AddUserToChatDto,
   CreateChatDto,
+  DmExitsDto,
   LeaveChatDto,
   UpdateUserChats,
 } from '../../../../common/dto/chat.dto';
@@ -63,5 +64,15 @@ export class ChatsController {
   @Post('leave-chat')
   async leaveChat(@Body() dto: LeaveChatDto): Promise<boolean> {
     return this.chatService.leaveChat(dto.userName, dto.chatId);
+  }
+
+  @Post('dm-exists')
+  async dmExists(@Body() dto: DmExitsDto): Promise<boolean> {
+    return this.chatService.dmExists(dto);
+  }
+
+  @Post('delete-dm')
+  async deleteDm(@Body() dto: DmExitsDto): Promise<{ message: string }> {
+    return this.chatService.deleteDm(dto);
   }
 }

@@ -26,8 +26,21 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() dto: RegisterDto): Promise<UserResponse> {
-    return this.authService.register(dto);
+  async register(@Body() dto: RegisterDto, @Res() response: Response) {
+    try {
+      const user = await this.authService.register(dto);
+      const token = this.authService.generateJwt(user);
+      response.cookie('token', token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+      return response.json(user);
+    } catch (error) {
+      response.status(400).json({
+        message: error.message || 'Registration failed',
+      });
+    }
   }
 
   @Post('logout')
