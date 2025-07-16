@@ -22,6 +22,7 @@ export class MessageService {
       chatId: savedMessage.chatId,
       sender: savedMessage.sender,
       content: savedMessage.content,
+      createdAt: savedMessage.createdAt || new Date(),
     };
   }
 

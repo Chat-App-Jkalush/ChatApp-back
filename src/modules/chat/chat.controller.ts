@@ -1,6 +1,11 @@
 import { Body, Controller, Post, Get, Query, Param } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { CreateChatDto } from '../../../../common/dto/chat.dto';
+import {
+  AddUserToChatDto,
+  CreateChatDto,
+  LeaveChatDto,
+  UpdateUserChats,
+} from '../../../../common/dto/chat.dto';
 import { ChatRo } from '../../../../common/Ro/chat.ro';
 
 @Controller('chats')
@@ -8,23 +13,17 @@ export class ChatsController {
   constructor(private chatService: ChatService) {}
 
   @Post()
-  async createChat(
-    @Body() dto: CreateChatDto,
-  ): Promise<{ chatId: string; chatName: string; description: string }> {
+  async createChat(@Body() dto: CreateChatDto): Promise<ChatRo> {
     return await this.chatService.createChat(dto);
   }
 
   @Post('add-user-to-chat')
-  async addUserToChat(
-    @Body() dto: { userName: string; chatId: string },
-  ): Promise<Partial<ChatRo>> {
+  async addUserToChat(@Body() dto: AddUserToChatDto): Promise<Partial<ChatRo>> {
     return this.chatService.addUserToChat(dto.userName, dto.chatId);
   }
 
   @Post('update-user-chats')
-  async updateUserChats(
-    @Body() dto: { userName: string; chatId: string; chatName: string },
-  ): Promise<void> {
+  async updateUserChats(@Body() dto: UpdateUserChats): Promise<void> {
     return this.chatService.updateUserChats(
       dto.userName,
       dto.chatId,
@@ -62,9 +61,7 @@ export class ChatsController {
   }
 
   @Post('leave-chat')
-  async leaveChat(
-    @Body() dto: { userName: string; chatId: string },
-  ): Promise<boolean> {
+  async leaveChat(@Body() dto: LeaveChatDto): Promise<boolean> {
     return this.chatService.leaveChat(dto.userName, dto.chatId);
   }
 }

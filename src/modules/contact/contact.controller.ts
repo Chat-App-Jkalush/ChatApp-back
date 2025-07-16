@@ -8,15 +8,18 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ContactService } from './contact.service';
-import { RemoveContactDto } from '../../../../common/dto/contact.dto';
+import {
+  CreateContactDto,
+  RemoveContactDto,
+} from '../../../../common/dto/contact.dto';
 
 @Controller('contacts')
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   @Post('add')
-  async addContact(@Body() body: { userName: string; contactName: string }) {
-    return this.contactService.addContact(body.userName, body.contactName);
+  async addContact(@Body() dto: CreateContactDto) {
+    return this.contactService.addContact(dto.userName, dto.contactName);
   }
 
   @Get('paginated')

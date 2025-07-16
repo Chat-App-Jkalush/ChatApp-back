@@ -1,6 +1,10 @@
 import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { DataCookieService } from './dataCookie.service';
 import { DataCookie } from 'src/database/schemas/dataCookie.schema';
+import {
+  LatestChatIdDTO,
+  SaveDataCookieDTO,
+} from '../../../../common/dto/dataCookie.dto';
 
 @Controller('data-cookie')
 export class DataCookieController {
@@ -9,15 +13,12 @@ export class DataCookieController {
   @Post('save')
   async saveUserCookie(
     @Body()
-    body: {
-      userName: string;
-      cookie: string;
-    },
+    dto: SaveDataCookieDTO,
   ): Promise<DataCookie> {
     try {
-      return await this.dataCookieService.saveUserCookie(body);
+      return await this.dataCookieService.saveUserCookie(dto);
     } catch (error) {
-      console.error('Error saving user cookie:', error, body);
+      console.error('Error saving user cookie:', error, dto);
       throw error;
     }
   }
@@ -31,11 +32,11 @@ export class DataCookieController {
 
   @Post('set-latest-chat')
   async setLatestChatId(
-    @Body() body: { userName: string; latestChatId: string },
+    @Body() dto: LatestChatIdDTO,
   ): Promise<DataCookie | null> {
     return this.dataCookieService.setLatestChatId(
-      body.userName,
-      body.latestChatId,
+      dto.userName,
+      dto.latestChatId,
     );
   }
 }
