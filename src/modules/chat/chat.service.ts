@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpCode,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/database/schemas/chats.schema';
@@ -18,7 +23,6 @@ export class ChatService {
   async createChat(
     dto: CreateChatDto,
   ): Promise<{ chatId: string; chatName: string; description: string }> {
-    console.log('CreateChatDto:', dto);
     const createdChat = new this.chatModel({
       chatName: dto.chatName,
       description: dto.description,
@@ -27,7 +31,6 @@ export class ChatService {
       type: dto.type,
     });
     const savedChat = await createdChat.save();
-    console.log('Saved chat:', savedChat);
 
     return {
       chatId: savedChat._id.toString(),
@@ -42,7 +45,7 @@ export class ChatService {
   ): Promise<Partial<ChatRo>> {
     const chat = await this.chatModel.findById(chatId);
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new NotFoundException('Chat not found');
     }
 
     if (!chat.participants.includes(userName)) {
@@ -103,7 +106,10 @@ export class ChatService {
   }
 
   async getChatById(chatId: string) {
-    const chat = await this.chatModel.findById(chatId).exec();
+    const chat = await this.chatModel
+      .findById(chatId)
+      .populate('messages')
+      .exec();
     if (!chat) {
       throw new Error('Chat not found');
     }
@@ -112,6 +118,7 @@ export class ChatService {
       chatName: chat.chatName,
       type: chat.type,
       description: chat.description,
+      messages: chat.messages,
     };
   }
 
@@ -136,5 +143,35 @@ export class ChatService {
       type: chat.type,
       description: chat.description,
     }));
+  }
+
+  getChatParticipants(chatId: string): Promise<string[]> {
+    return this.chatModel
+      .findById(chatId)
+      .then((chat) => {
+        if (!chat) {
+          throw new Error('Chat was not found');
+        }
+        return chat.participants;
+      })
+      .catch((error) => {
+        throw new Error(`Error retrieving participants: ${error.message}`);
+      });
+  }
+
+  async leaveChat(userName: string, chatId: string): Promise<boolean> {
+    try {
+      const chat = await this.chatModel.findById(chatId);
+      if (!chat) {
+        throw new Error('Chat not found');
+      }
+      chat.participants = chat.participants.filter(
+        (participant) => participant !== userName,
+      );
+      await chat.save();
+      return true;
+    } catch (error) {
+      throw new Error(`Error leaving chat: ${error.message}`);
+    }
   }
 }

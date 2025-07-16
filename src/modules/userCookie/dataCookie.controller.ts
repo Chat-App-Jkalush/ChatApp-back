@@ -11,12 +11,15 @@ export class DataCookieController {
     @Body()
     body: {
       userName: string;
-      firstName: string;
-      lastName: string;
       cookie: string;
     },
   ): Promise<DataCookie> {
-    return this.dataCookieService.saveUserCookie(body);
+    try {
+      return await this.dataCookieService.saveUserCookie(body);
+    } catch (error) {
+      console.error('Error saving user cookie:', error, body);
+      throw error;
+    }
   }
 
   @Get('get')

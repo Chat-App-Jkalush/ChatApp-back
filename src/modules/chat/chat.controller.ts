@@ -52,4 +52,19 @@ export class ChatsController {
   async getChatById(@Param('chatId') chatId: string) {
     return this.chatService.getChatById(chatId);
   }
+
+  @Get('get-chat-participents/:chatId')
+  async getChatUsers(
+    @Param('chatId') chatId: string,
+  ): Promise<{ participants: string[] }> {
+    const participants = await this.chatService.getChatParticipants(chatId);
+    return { participants };
+  }
+
+  @Post('leave-chat')
+  async leaveChat(
+    @Body() dto: { userName: string; chatId: string },
+  ): Promise<boolean> {
+    return this.chatService.leaveChat(dto.userName, dto.chatId);
+  }
 }
