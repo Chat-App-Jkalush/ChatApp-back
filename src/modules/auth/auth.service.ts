@@ -13,7 +13,7 @@ import { UserResponse } from '../../../../common/Ro/user.ro';
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
-  async login(dto: LoginDto): Promise<UserResponse> {
+  public async login(dto: LoginDto): Promise<UserResponse> {
     const user = await this.userService.findUserByUserName(dto.userName);
     if (!user) {
       throw new BadRequestException('UserName not found');
@@ -25,7 +25,7 @@ export class AuthService {
     return this.userService.mapToUserResponse(user);
   }
 
-  async register(dto: RegisterDto): Promise<UserResponse> {
+  public async register(dto: RegisterDto): Promise<UserResponse> {
     const existingUser = await this.userService.findUserByUserName(
       dto.userName,
     );
@@ -35,7 +35,7 @@ export class AuthService {
     return this.userService.createUser(dto);
   }
 
-  generateJwt(user: any): string {
+  public generateJwt(user: any): string {
     const payload = { sub: user._id, username: user.userName };
     return jwt.sign(payload, process.env.JWT_SECRET || '', {
       expiresIn: '7d',

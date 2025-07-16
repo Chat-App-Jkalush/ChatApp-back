@@ -11,19 +11,21 @@ export class MessageController {
   constructor(private messageService: MessageService) {}
 
   @Post()
-  async createMessage(@Body() dto: CreateMessageDto): Promise<MessageResponse> {
+  public async createMessage(
+    @Body() dto: CreateMessageDto,
+  ): Promise<MessageResponse> {
     return this.messageService.createMessage(dto);
   }
 
   @Get()
-  async getById(
+  public async getById(
     @Query('messageId') messageId: string,
   ): Promise<messageInfoResponse> {
     return this.messageService.getById(messageId);
   }
 
   @Get('by-chat')
-  async getAllByChatId(
+  public async getAllByChatId(
     @Query('chatId') chatId: string,
   ): Promise<messageInfoResponse[]> {
     const messages: messageInfoResponse[] = [];

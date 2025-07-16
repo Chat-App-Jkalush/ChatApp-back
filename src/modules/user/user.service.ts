@@ -13,7 +13,7 @@ export class UserService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  mapToUserResponse(user: UserDocument): UserResponse {
+  public mapToUserResponse(user: UserDocument): UserResponse {
     return {
       userName: user.userName,
       firstName: user.firstName,
@@ -21,7 +21,7 @@ export class UserService {
     };
   }
 
-  async createUser(dto: RegisterDto): Promise<UserResponse> {
+  public async createUser(dto: RegisterDto): Promise<UserResponse> {
     const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
 
     const createdUser = new this.userModel({
@@ -35,16 +35,20 @@ export class UserService {
     return this.mapToUserResponse(savedUser);
   }
 
-  async getUserByUserName(userName: string): Promise<UserResponse | null> {
+  public async getUserByUserName(
+    userName: string,
+  ): Promise<UserResponse | null> {
     const user = await this.userModel.findOne({ userName }).exec();
     return user ? this.mapToUserResponse(user) : null;
   }
 
-  async findUserByUserName(userName: string): Promise<UserDocument | null> {
+  public async findUserByUserName(
+    userName: string,
+  ): Promise<UserDocument | null> {
     return this.userModel.findOne({ userName }).exec();
   }
 
-  async updateUserProfile(
+  public async updateUserProfile(
     body: Partial<{
       userName: string;
       firstName: string;
@@ -69,7 +73,7 @@ export class UserService {
     return this.mapToUserResponse(updatedUser);
   }
 
-  async paginatedChats(
+  public async paginatedChats(
     userName: string,
     page: number = 1,
     pageSize: number = 10,
@@ -84,7 +88,7 @@ export class UserService {
     return { chats, total };
   }
 
-  async paginatedUsers(
+  public async paginatedUsers(
     userName: string,
     page: number = 1,
     pageSize: number = 10,

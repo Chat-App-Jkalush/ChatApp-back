@@ -8,30 +8,30 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
-  async createUser(@Body() dto: RegisterDto): Promise<UserResponse> {
+  public async createUser(@Body() dto: RegisterDto): Promise<UserResponse> {
     return this.userService.createUser(dto);
   }
 
   @Get()
-  async getUser(
+  public async getUser(
     @Query('userName') userName: string,
   ): Promise<UserResponse | null> {
     return this.userService.getUserByUserName(userName);
   }
 
   @Put('update')
-  async updateUser(
+  public async updateUser(
     @Body() body: Partial<UserUpdateDto>,
   ): Promise<UserResponse> {
     return this.userService.updateUserProfile(body);
   }
 
   @Get('paginated-chats')
-  async paginatedChats(
+  public async paginatedChats(
     @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
-  ) {
+  ): Promise<{ chats: string[]; total: number }> {
     return this.userService.paginatedChats(
       userName,
       Number(page),
@@ -40,11 +40,11 @@ export class UserController {
   }
 
   @Get('paginated-users')
-  async paginatedUsers(
+  public async paginatedUsers(
     @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
-  ) {
+  ): Promise<{ users: UserResponse[]; total: number }> {
     return this.userService.paginatedUsers(
       userName,
       Number(page),

@@ -10,7 +10,10 @@ export class ContactService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
-  async addContact(userName: string, contactName: string) {
+  public async addContact(
+    userName: string,
+    contactName: string,
+  ): Promise<User> {
     const user = await this.userModel.findOne({ userName }).exec();
     if (!user) throw new Error('User not found');
     if (!user.contacts) user.contacts = [];
@@ -21,7 +24,7 @@ export class ContactService {
     return user;
   }
 
-  async paginatedContacts(
+  public async paginatedContacts(
     userName: string,
     page: number = 1,
     pageSize: number = 10,
@@ -37,7 +40,7 @@ export class ContactService {
     return { contacts: pagedContacts, total };
   }
 
-  async removeContact(dto: RemoveContactDto): Promise<User> {
+  public async removeContact(dto: RemoveContactDto): Promise<User> {
     const user = await this.userModel
       .findOne({ userName: dto.userName })
       .exec();

@@ -8,7 +8,10 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res() response: Response) {
+  public async login(
+    @Body() dto: LoginDto,
+    @Res() response: Response,
+  ): Promise<Response | void> {
     try {
       const user = await this.authService.login(dto);
       const token = this.authService.generateJwt(user);
@@ -18,7 +21,7 @@ export class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       return response.json(user);
-    } catch (error) {
+    } catch (error: any) {
       response.status(400).json({
         message: error.message || 'Login failed',
       });
@@ -26,7 +29,10 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() dto: RegisterDto, @Res() response: Response) {
+  public async register(
+    @Body() dto: RegisterDto,
+    @Res() response: Response,
+  ): Promise<Response | void> {
     try {
       const user = await this.authService.register(dto);
       const token = this.authService.generateJwt(user);
@@ -36,7 +42,7 @@ export class AuthController {
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
       return response.json(user);
-    } catch (error) {
+    } catch (error: any) {
       response.status(400).json({
         message: error.message || 'Registration failed',
       });
@@ -44,7 +50,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  logout(@Res() res: Response) {
+  public logout(@Res() res: Response): Response {
     res.clearCookie('token');
     return res.json({ message: 'Logged out' });
   }

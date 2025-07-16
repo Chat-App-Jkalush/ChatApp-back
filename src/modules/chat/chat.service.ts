@@ -24,7 +24,7 @@ export class ChatService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  async createChat(
+  public async createChat(
     dto: CreateChatDto,
   ): Promise<{ chatId: string; chatName: string; description: string }> {
     const createdChat = new this.chatModel({
@@ -43,7 +43,7 @@ export class ChatService {
     };
   }
 
-  async addUserToChat(
+  public async addUserToChat(
     userName: string,
     chatId: string,
   ): Promise<Partial<ChatRo>> {
@@ -63,7 +63,7 @@ export class ChatService {
     };
   }
 
-  async updateUserChats(
+  public async updateUserChats(
     userName: string,
     chatId: string,
     chatName: string,
@@ -76,7 +76,7 @@ export class ChatService {
     await user.save();
   }
 
-  async paginatedChats(
+  public async paginatedChats(
     userName: string,
     page: number = 1,
     pageSize: number = 10,
@@ -109,7 +109,7 @@ export class ChatService {
     return { chats: chatList, total };
   }
 
-  async getChatById(chatId: string) {
+  public async getChatById(chatId: string): Promise<any> {
     const chat = await this.chatModel
       .findById(chatId)
       .populate('messages')
@@ -126,7 +126,10 @@ export class ChatService {
     };
   }
 
-  async addMessageToChat(chatId: string, messageId: string): Promise<void> {
+  public async addMessageToChat(
+    chatId: string,
+    messageId: string,
+  ): Promise<void> {
     const chat = await this.chatModel.findById(chatId).exec();
     if (!chat) {
       throw new Error('Chat not found');
@@ -135,7 +138,7 @@ export class ChatService {
     await chat.save();
   }
 
-  async getChatsByUser(
+  public async getChatsByUser(
     userName: string,
   ): Promise<
     { chatId: string; chatName: string; type: string; description: string }[]
@@ -149,7 +152,7 @@ export class ChatService {
     }));
   }
 
-  getChatParticipants(chatId: string): Promise<string[]> {
+  public getChatParticipants(chatId: string): Promise<string[]> {
     return this.chatModel
       .findById(chatId)
       .then((chat) => {
@@ -163,7 +166,7 @@ export class ChatService {
       });
   }
 
-  async leaveChat(userName: string, chatId: string): Promise<boolean> {
+  public async leaveChat(userName: string, chatId: string): Promise<boolean> {
     try {
       const chat = await this.chatModel.findById(chatId);
       if (!chat) {
@@ -174,12 +177,12 @@ export class ChatService {
       );
       await chat.save();
       return true;
-    } catch (error) {
+    } catch (error: any) {
       throw new Error(`Error leaving chat: ${error.message}`);
     }
   }
 
-  async dmExists(dto: DmExitsDto): Promise<boolean> {
+  public async dmExists(dto: DmExitsDto): Promise<boolean> {
     const { userName1, userName2 } = dto;
     const chat = await this.chatModel.findOne({
       type: chatType.DM,
@@ -188,7 +191,7 @@ export class ChatService {
     return !!chat;
   }
 
-  async findDm(dto: DeleteDmDto): Promise<string> {
+  public async findDm(dto: DeleteDmDto): Promise<string> {
     const chat = await this.chatModel.findOne({
       type: chatType.DM,
       participants: { $all: [dto.userName1, dto.userName2] },
@@ -199,7 +202,7 @@ export class ChatService {
     return chat._id.toString();
   }
 
-  async deleteDm(dto: DeleteDmDto) {
+  public async deleteDm(dto: DeleteDmDto): Promise<{ message: string }> {
     const chatId = await this.findDm(dto);
     const result = await this.chatModel.deleteOne({ _id: chatId });
     if (result.deletedCount === 0) {

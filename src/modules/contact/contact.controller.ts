@@ -18,16 +18,16 @@ export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   @Post('add')
-  async addContact(@Body() dto: CreateContactDto) {
+  public async addContact(@Body() dto: CreateContactDto): Promise<any> {
     return this.contactService.addContact(dto.userName, dto.contactName);
   }
 
   @Get('paginated')
-  async paginatedContacts(
+  public async paginatedContacts(
     @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
-  ) {
+  ): Promise<{ contacts: string[]; total: number }> {
     return this.contactService.paginatedContacts(
       userName,
       Number(page),
@@ -36,10 +36,10 @@ export class ContactController {
   }
 
   @Post('remove')
-  async removeContact(@Body() dto: RemoveContactDto) {
+  public async removeContact(@Body() dto: RemoveContactDto): Promise<any> {
     try {
       return await this.contactService.removeContact(dto);
-    } catch (error) {
+    } catch (error: any) {
       throw new HttpException(
         error.message || 'Failed to remove contact',
         HttpStatus.BAD_REQUEST,

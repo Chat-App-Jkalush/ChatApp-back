@@ -19,24 +19,30 @@ import { Message } from 'src/database/schemas/message.schema';
 
 @WebSocketGateway(DEFAULT_PORT, { cors: { origin: CLIENT_ORIGIN } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
-  private userNameToSocket = new Map<string, Socket>();
-  private chatIdToSockets = new Map<string, Set<Socket>>();
+  private userNameToSocket: Map<string, Socket> = new Map<string, Socket>();
+  private chatIdToSockets: Map<string, Set<Socket>> = new Map<
+    string,
+    Set<Socket>
+  >();
 
   constructor(
     private chatService: ChatService,
     private messageService: MessageService,
   ) {}
 
-  @WebSocketServer() server: Server;
+  @WebSocketServer() public server!: Server;
 
-  private broadcastOnlineStatus(userName: string, isOnline: boolean) {
+  private broadcastOnlineStatus(userName: string, isOnline: boolean): void {
     this.server.emit('contactOnlineStatus', { userName, isOnline });
   }
 
-  handleConnection(client: Socket) {}
+  public handleConnection(client: Socket): void {}
 
   @SubscribeMessage(EVENTS.JOIN_CHAT)
-  async handleJoinChat(client: Socket, payload: { userName: string }) {
+  public async handleJoinChat(
+    client: Socket,
+    payload: { userName: string },
+  ): Promise<void> {
     const { userName } = payload;
     const previousSocket = this.userNameToSocket.get(userName);
     if (previousSocket && previousSocket.id !== client.id) {
@@ -57,10 +63,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(EVENTS.LEAVE_CHAT)
-  async handleLeaveChat(
+  public async handleLeaveChat(
     client: Socket,
     payload: { chatId: string; userName: string },
-  ) {
+  ): Promise<void> {
     const { chatId, userName } = payload;
     const leaveMessage: CreateMessageDto = {
       chatId,
@@ -71,13 +77,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.addMessageToChat(chatId, messageId);
     const sockets = this.chatIdToSockets.get(chatId);
     if (sockets) {
-      sockets.forEach((socket) => {
+      sockets.forEach((socket: Socket) => {
         socket.emit(EVENTS.REPLY, leaveMessage);
       });
     }
   }
+
   @SubscribeMessage(EVENTS.NEW_MESSAGE)
-  async handleNewMessage(client: Socket, message: CreateMessageDto) {
+  public async handleNewMessage(
+    client: Socket,
+    message: CreateMessageDto,
+  ): Promise<void> {
     const messageId = await this.messageService.createAndGetId(message);
     await this.chatService.addMessageToChat(message.chatId, messageId);
     if (!this.chatIdToSockets.has(message.chatId)) {
@@ -88,12 +98,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socketsSet.add(client);
       client.join(message.chatId);
     }
-    socketsSet.forEach((socket) => {
+    socketsSet.forEach((socket: Socket) => {
       socket.emit(EVENTS.REPLY, message);
     });
   }
 
-  handleDisconnect(client: Socket) {
+  public handleDisconnect(client: Socket): void {
     let disconnectedUser: string | null = null;
     for (const [userName, socket] of this.userNameToSocket.entries()) {
       if (socket.id === client.id) {
@@ -111,14 +121,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage(EVENTS.IS_ONLINE)
-  handleIsOnline(client: Socket, payload: { userName: string }) {
+  public handleIsOnline(client: Socket, payload: { userName: string }): void {
     const isOnline = this.userNameToSocket.has(payload.userName);
     client.emit('isOnlineResult', { userName: payload.userName, isOnline });
   }
 
   @SubscribeMessage(EVENTS.GET_ONLINE_USERS)
-  handleGetOnlineUsers(client: Socket, payload: { contacts: string[] }) {
-    const onlineContacts = payload.contacts.filter((contact) =>
+  public handleGetOnlineUsers(
+    client: Socket,
+    payload: { contacts: string[] },
+  ): void {
+    const onlineContacts = payload.contacts.filter((contact: string) =>
       this.userNameToSocket.has(contact),
     );
     client.emit('onlineUsersList', { onlineContacts });

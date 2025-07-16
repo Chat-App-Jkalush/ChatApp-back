@@ -8,7 +8,7 @@ export class DataCookieService {
     @InjectModel(DataCookie.name) private readonly userModel: Model<DataCookie>,
   ) {}
 
-  async saveUserCookie(body: {
+  public async saveUserCookie(body: {
     userName: string;
     cookie: string;
     latestChatId?: string;
@@ -22,11 +22,11 @@ export class DataCookieService {
       .exec();
   }
 
-  async getUserCookie(cookie: string): Promise<DataCookie | null> {
+  public async getUserCookie(cookie: string): Promise<DataCookie | null> {
     return this.userModel.findOne({ cookie }).exec();
   }
 
-  async setLatestChatId(
+  public async setLatestChatId(
     userName: string,
     latestChatId: string,
   ): Promise<DataCookie | null> {

@@ -14,7 +14,9 @@ export class MessageService {
     @InjectModel(Message.name) private readonly messageModel: Model<Message>,
   ) {}
 
-  async createMessage(@Body() dto: CreateMessageDto): Promise<MessageResponse> {
+  public async createMessage(
+    @Body() dto: CreateMessageDto,
+  ): Promise<MessageResponse> {
     const createdMessage = new this.messageModel(dto);
     const savedMessage = await createdMessage.save();
 
@@ -26,13 +28,15 @@ export class MessageService {
     };
   }
 
-  async createAndGetId(@Body() dto: CreateMessageDto): Promise<string> {
+  public async createAndGetId(@Body() dto: CreateMessageDto): Promise<string> {
     const createdMessage = new this.messageModel(dto);
     const savedMessage = await createdMessage.save();
     return savedMessage._id.toString();
   }
 
-  async getById(@Query() messageId: string): Promise<messageInfoResponse> {
+  public async getById(
+    @Query() messageId: string,
+  ): Promise<messageInfoResponse> {
     const message = await this.messageModel.findById(messageId).exec();
     if (!message) {
       throw new Error('Message not found');
@@ -44,7 +48,7 @@ export class MessageService {
     };
   }
 
-  async *getAllByChatIdStream(
+  public async *getAllByChatIdStream(
     chatId: string,
   ): AsyncGenerator<messageInfoResponse> {
     const cursor = this.messageModel

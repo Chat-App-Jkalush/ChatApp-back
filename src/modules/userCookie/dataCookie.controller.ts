@@ -12,11 +12,11 @@ export class DataCookieController {
   constructor(private readonly dataCookieService: DataCookieService) {}
 
   @Post('save')
-  async saveUserCookie(
+  public async saveUserCookie(
     @Req() req: Request,
     @Body() body: { userName: string },
     @Res() res: Response,
-  ) {
+  ): Promise<Response> {
     const token = req.cookies['token'];
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
@@ -29,7 +29,10 @@ export class DataCookieController {
   }
 
   @Get('get')
-  async getUserCookie(@Req() req: Request, @Res() res: Response) {
+  public async getUserCookie(
+    @Req() req: Request,
+    @Res() res: Response,
+  ): Promise<Response> {
     const token = req.cookies['token'];
     if (!token) {
       return res.status(401).json({ message: 'No token provided' });
@@ -42,7 +45,7 @@ export class DataCookieController {
   }
 
   @Post('set-latest-chat')
-  async setLatestChatId(
+  public async setLatestChatId(
     @Body() dto: LatestChatIdDTO,
   ): Promise<DataCookie | null> {
     return this.dataCookieService.setLatestChatId(

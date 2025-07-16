@@ -14,17 +14,19 @@ export class ChatsController {
   constructor(private chatService: ChatService) {}
 
   @Post()
-  async createChat(@Body() dto: CreateChatDto): Promise<ChatRo> {
+  public async createChat(@Body() dto: CreateChatDto): Promise<ChatRo> {
     return await this.chatService.createChat(dto);
   }
 
   @Post('add-user-to-chat')
-  async addUserToChat(@Body() dto: AddUserToChatDto): Promise<Partial<ChatRo>> {
+  public async addUserToChat(
+    @Body() dto: AddUserToChatDto,
+  ): Promise<Partial<ChatRo>> {
     return this.chatService.addUserToChat(dto.userName, dto.chatId);
   }
 
   @Post('update-user-chats')
-  async updateUserChats(@Body() dto: UpdateUserChats): Promise<void> {
+  public async updateUserChats(@Body() dto: UpdateUserChats): Promise<void> {
     return this.chatService.updateUserChats(
       dto.userName,
       dto.chatId,
@@ -33,7 +35,7 @@ export class ChatsController {
   }
 
   @Get('paginated')
-  async paginatedChats(
+  public async paginatedChats(
     @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
@@ -49,12 +51,12 @@ export class ChatsController {
   }
 
   @Get('paginated/:chatId')
-  async getChatById(@Param('chatId') chatId: string) {
+  public async getChatById(@Param('chatId') chatId: string): Promise<any> {
     return this.chatService.getChatById(chatId);
   }
 
   @Get('get-chat-participents/:chatId')
-  async getChatUsers(
+  public async getChatUsers(
     @Param('chatId') chatId: string,
   ): Promise<{ participants: string[] }> {
     const participants = await this.chatService.getChatParticipants(chatId);
@@ -62,17 +64,17 @@ export class ChatsController {
   }
 
   @Post('leave-chat')
-  async leaveChat(@Body() dto: LeaveChatDto): Promise<boolean> {
+  public async leaveChat(@Body() dto: LeaveChatDto): Promise<boolean> {
     return this.chatService.leaveChat(dto.userName, dto.chatId);
   }
 
   @Post('dm-exists')
-  async dmExists(@Body() dto: DmExitsDto): Promise<boolean> {
+  public async dmExists(@Body() dto: DmExitsDto): Promise<boolean> {
     return this.chatService.dmExists(dto);
   }
 
   @Post('delete-dm')
-  async deleteDm(@Body() dto: DmExitsDto): Promise<{ message: string }> {
+  public async deleteDm(@Body() dto: DmExitsDto): Promise<{ message: string }> {
     return this.chatService.deleteDm(dto);
   }
 }
