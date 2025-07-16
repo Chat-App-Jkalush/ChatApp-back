@@ -63,9 +63,11 @@ export class UserService {
       throw new Error('User not found');
     }
 
-    if (body.firstName !== undefined) user.firstName = body.firstName;
-    if (body.lastName !== undefined) user.lastName = body.lastName;
-    if (body.password !== undefined) {
+    if (body.firstName !== undefined && body.firstName.trim() !== '')
+      user.firstName = body.firstName;
+    if (body.lastName !== undefined && body.lastName.trim() !== '')
+      user.lastName = body.lastName;
+    if (body.password !== undefined && body.password.trim() !== '') {
       user.password = await bcrypt.hash(body.password, BCRYPT_SALT_ROUNDS);
     }
 
