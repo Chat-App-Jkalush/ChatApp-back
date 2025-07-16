@@ -29,6 +29,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer() server: Server;
 
+  private broadcastOnlineStatus(userName: string, isOnline: boolean) {
+    this.server.emit('contactOnlineStatus', { userName, isOnline });
+  }
+
   handleConnection(client: Socket) {}
 
   @SubscribeMessage(EVENTS.JOIN_CHAT)
@@ -49,6 +53,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.chatIdToSockets.get(chatId)!.add(client);
       client.join(chatId);
     }
+    this.broadcastOnlineStatus(userName, true);
   }
 
   @SubscribeMessage(EVENTS.LEAVE_CHAT)
@@ -90,14 +95,33 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   handleDisconnect(client: Socket) {
+    let disconnectedUser: string | null = null;
     for (const [userName, socket] of this.userNameToSocket.entries()) {
       if (socket.id === client.id) {
         this.userNameToSocket.delete(userName);
+        disconnectedUser = userName;
         break;
       }
     }
     for (const [chatId, sockets] of this.chatIdToSockets.entries()) {
       sockets.delete(client);
     }
+    if (disconnectedUser) {
+      this.broadcastOnlineStatus(disconnectedUser, false);
+    }
+  }
+
+  @SubscribeMessage(EVENTS.IS_ONLINE)
+  handleIsOnline(client: Socket, payload: { userName: string }) {
+    const isOnline = this.userNameToSocket.has(payload.userName);
+    client.emit('isOnlineResult', { userName: payload.userName, isOnline });
+  }
+
+  @SubscribeMessage(EVENTS.GET_ONLINE_USERS)
+  handleGetOnlineUsers(client: Socket, payload: { contacts: string[] }) {
+    const onlineContacts = payload.contacts.filter((contact) =>
+      this.userNameToSocket.has(contact),
+    );
+    client.emit('onlineUsersList', { onlineContacts });
   }
 }
