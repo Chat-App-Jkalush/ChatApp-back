@@ -1,10 +1,7 @@
 import { Controller, Post, Body, Get, Query, Req, Res } from '@nestjs/common';
 import { DataCookieService } from './dataCookie.service';
 import { DataCookie } from 'src/database/schemas/dataCookie.schema';
-import {
-  LatestChatIdDTO,
-  SaveDataCookieDTO,
-} from '../../../../common/dto/dataCookie.dto';
+import { CommonDto } from '../../../../common';
 import { Request, Response } from 'express';
 
 @Controller('data-cookie')
@@ -46,7 +43,7 @@ export class DataCookieController {
 
   @Post('set-latest-chat')
   public async setLatestChatId(
-    @Body() dto: LatestChatIdDTO,
+    @Body() dto: CommonDto.DataCookieDto.LatestChatIdDTO,
   ): Promise<DataCookie | null> {
     return this.dataCookieService.setLatestChatId(
       dto.userName,

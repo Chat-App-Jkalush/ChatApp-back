@@ -7,17 +7,13 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { ChatService } from './chat.service';
-import { CreateMessageDto } from '../../../../common/dto/message.dto';
+import { CommonDto, CommonConstants } from '../../../../common';
 import { MessageService } from '../message/message.service';
-import {
-  CLIENT_ORIGIN,
-  DEFAULT_PORT,
-  EVENTS,
-  SYSTEM,
-} from '../../../../common/constatns/gateway.contants';
 import { Message } from 'src/database/schemas/message.schema';
 
-@WebSocketGateway(DEFAULT_PORT, { cors: { origin: CLIENT_ORIGIN } })
+@WebSocketGateway(CommonConstants.GatewayConstants.DEFAULT_PORT, {
+  cors: { origin: CommonConstants.GatewayConstants.CLIENT_ORIGIN },
+})
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   private userNameToSocket: Map<string, Socket> = new Map<string, Socket>();
   private chatIdToSockets: Map<string, Set<Socket>> = new Map<
@@ -38,7 +34,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   public handleConnection(client: Socket): void {}
 
-  @SubscribeMessage(EVENTS.JOIN_CHAT)
+  @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.JOIN_CHAT)
   public async handleJoinChat(
     client: Socket,
     payload: { userName: string },
@@ -62,15 +58,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.broadcastOnlineStatus(userName, true);
   }
 
-  @SubscribeMessage(EVENTS.LEAVE_CHAT)
+  @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.LEAVE_CHAT)
   public async handleLeaveChat(
     client: Socket,
     payload: { chatId: string; userName: string },
   ): Promise<void> {
     const { chatId, userName } = payload;
-    const leaveMessage: CreateMessageDto = {
+    const leaveMessage: CommonDto.MessageDto.CreateMessageDto = {
       chatId,
-      sender: SYSTEM,
+      sender: CommonConstants.GatewayConstants.SYSTEM,
       content: `${userName} has left the chat.`,
     };
     const messageId = await this.messageService.createAndGetId(leaveMessage);
@@ -78,15 +74,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const sockets = this.chatIdToSockets.get(chatId);
     if (sockets) {
       sockets.forEach((socket: Socket) => {
-        socket.emit(EVENTS.REPLY, leaveMessage);
+        socket.emit(
+          CommonConstants.GatewayConstants.EVENTS.REPLY,
+          leaveMessage,
+        );
       });
     }
   }
 
-  @SubscribeMessage(EVENTS.NEW_MESSAGE)
+  @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.NEW_MESSAGE)
   public async handleNewMessage(
     client: Socket,
-    message: CreateMessageDto,
+    message: CommonDto.MessageDto.CreateMessageDto,
   ): Promise<void> {
     const messageId = await this.messageService.createAndGetId(message);
     await this.chatService.addMessageToChat(message.chatId, messageId);
@@ -99,7 +98,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.join(message.chatId);
     }
     socketsSet.forEach((socket: Socket) => {
-      socket.emit(EVENTS.REPLY, message);
+      socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, message);
     });
   }
 
@@ -120,13 +119,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  @SubscribeMessage(EVENTS.IS_ONLINE)
+  @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.IS_ONLINE)
   public handleIsOnline(client: Socket, payload: { userName: string }): void {
     const isOnline = this.userNameToSocket.has(payload.userName);
     client.emit('isOnlineResult', { userName: payload.userName, isOnline });
   }
 
-  @SubscribeMessage(EVENTS.GET_ONLINE_USERS)
+  @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.GET_ONLINE_USERS)
   public handleGetOnlineUsers(
     client: Socket,
     payload: { contacts: string[] },

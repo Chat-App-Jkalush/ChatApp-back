@@ -1,32 +1,29 @@
 import { Body, Controller, Post, Get, Query, Param } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import {
-  AddUserToChatDto,
-  CreateChatDto,
-  DmExitsDto,
-  LeaveChatDto,
-  UpdateUserChats,
-} from '../../../../common/dto/chat.dto';
-import { ChatRo } from '../../../../common/Ro/chat.ro';
+import { CommonDto, CommonRo } from '../../../../common';
 
 @Controller('chats')
 export class ChatsController {
   constructor(private chatService: ChatService) {}
 
   @Post()
-  public async createChat(@Body() dto: CreateChatDto): Promise<ChatRo> {
+  public async createChat(
+    @Body() dto: CommonDto.ChatDto.CreateChatDto,
+  ): Promise<CommonRo.ChatRo.ChatRo> {
     return await this.chatService.createChat(dto);
   }
 
   @Post('add-user-to-chat')
   public async addUserToChat(
-    @Body() dto: AddUserToChatDto,
-  ): Promise<Partial<ChatRo>> {
+    @Body() dto: CommonDto.ChatDto.AddUserToChatDto,
+  ): Promise<Partial<CommonRo.ChatRo.ChatRo>> {
     return this.chatService.addUserToChat(dto.userName, dto.chatId);
   }
 
   @Post('update-user-chats')
-  public async updateUserChats(@Body() dto: UpdateUserChats): Promise<void> {
+  public async updateUserChats(
+    @Body() dto: CommonDto.ChatDto.UpdateUserChats,
+  ): Promise<void> {
     return this.chatService.updateUserChats(
       dto.userName,
       dto.chatId,
@@ -64,17 +61,23 @@ export class ChatsController {
   }
 
   @Post('leave-chat')
-  public async leaveChat(@Body() dto: LeaveChatDto): Promise<boolean> {
+  public async leaveChat(
+    @Body() dto: CommonDto.ChatDto.LeaveChatDto,
+  ): Promise<boolean> {
     return this.chatService.leaveChat(dto.userName, dto.chatId);
   }
 
   @Post('dm-exists')
-  public async dmExists(@Body() dto: DmExitsDto): Promise<boolean> {
+  public async dmExists(
+    @Body() dto: CommonDto.ChatDto.DmExitsDto,
+  ): Promise<boolean> {
     return this.chatService.dmExists(dto);
   }
 
   @Post('delete-dm')
-  public async deleteDm(@Body() dto: DmExitsDto): Promise<{ message: string }> {
+  public async deleteDm(
+    @Body() dto: CommonDto.ChatDto.DmExitsDto,
+  ): Promise<{ message: string }> {
     return this.chatService.deleteDm(dto);
   }
 }

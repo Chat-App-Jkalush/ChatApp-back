@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { UserResponse } from '../../../../common/Ro/user.ro';
-import { EXPERATION_TIME_NUMBER } from '../../../../common/constatns/cookies.constants';
+import { CommonRo, CommonConstants } from '../../../../common';
 @Schema({
   timestamps: true,
   collection: 'userCookies',
@@ -15,7 +14,11 @@ export class DataCookie {
   @Prop({ trim: true, required: true })
   lastName: string;
 
-  @Prop({ required: true, trim: true, expires: EXPERATION_TIME_NUMBER })
+  @Prop({
+    required: true,
+    trim: true,
+    expires: CommonConstants.CookiesConstants.EXPERATION_TIME_NUMBER,
+  })
   cookie: string;
 
   @Prop({ trim: true, required: false })

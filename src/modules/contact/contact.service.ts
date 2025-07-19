@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/database/schemas/users.schema';
-import { RemoveContactDto } from '../../../../common/dto/contact.dto';
+import { CommonDto } from '../../../../common';
 
 @Injectable()
 export class ContactService {
@@ -40,7 +40,9 @@ export class ContactService {
     return { contacts: pagedContacts, total };
   }
 
-  public async removeContact(dto: RemoveContactDto): Promise<User> {
+  public async removeContact(
+    dto: CommonDto.ContactDto.RemoveContactDto,
+  ): Promise<User> {
     const user = await this.userModel
       .findOne({ userName: dto.userName })
       .exec();

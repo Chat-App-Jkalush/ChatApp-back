@@ -1,15 +1,14 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from '../../../../common/dto/user.dto';
+import { CommonDto, CommonRo } from '../../../../common';
 import { Response } from 'express';
-import { UserResponse } from '../../../../common/Ro/user.ro';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
   public async login(
-    @Body() dto: LoginDto,
+    @Body() dto: CommonDto.UserDto.LoginDto,
     @Res() response: Response,
   ): Promise<Response | void> {
     try {
@@ -30,7 +29,7 @@ export class AuthController {
 
   @Post('register')
   public async register(
-    @Body() dto: RegisterDto,
+    @Body() dto: CommonDto.UserDto.RegisterDto,
     @Res() response: Response,
   ): Promise<Response | void> {
     try {
