@@ -6,9 +6,9 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { ChatService } from './chat.service';
-import { CommonDto, CommonConstants } from '../../../../common';
-import { MessageService } from '../message/message.service';
+import { ChatService } from '../chat.service';
+import { CommonDto, CommonConstants } from '../../../../../common';
+import { MessageService } from '../../message/message.service';
 import { Message } from 'src/database/schemas/message.schema';
 
 @WebSocketGateway(CommonConstants.GatewayConstants.DEFAULT_PORT, {
