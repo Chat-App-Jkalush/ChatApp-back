@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { EXPIRES_IN } from 'src/constants/message.constants';
+import { BackendConstants } from 'src/constants/backend.constants';
 
 export type MessageDocument = Message &
   Document & {
@@ -22,7 +22,11 @@ export class Message {
   @Prop({ required: true })
   chatId: string;
 
-  @Prop({ expires: EXPIRES_IN, type: Date, default: Date.now })
+  @Prop({
+    expires: BackendConstants.MessageConstants.EXPIRES_IN,
+    type: Date,
+    default: Date.now,
+  })
   createdAt?: Date;
 }
 export const MessageSchema = SchemaFactory.createForClass(Message);

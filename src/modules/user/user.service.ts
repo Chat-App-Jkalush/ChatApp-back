@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import * as bcrypt from 'bcrypt';
-import { BCRYPT_SALT_ROUNDS } from 'src/constants/auth.constants';
+import { BackendConstants } from 'src/constants/backend.constants';
 import { RegisterDto } from '../../../../common/dto/user.dto';
 import { UserResponse } from '../../../../common/Ro/user.ro';
 
@@ -22,7 +22,10 @@ export class UserService {
   }
 
   public async createUser(dto: RegisterDto): Promise<UserResponse> {
-    const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(
+      dto.password,
+      BackendConstants.AuthConstants.BCRYPT_SALT_ROUNDS,
+    );
 
     const createdUser = new this.userModel({
       ...dto,
@@ -68,7 +71,10 @@ export class UserService {
     if (body.lastName !== undefined && body.lastName.trim() !== '')
       user.lastName = body.lastName;
     if (body.password !== undefined && body.password.trim() !== '') {
-      user.password = await bcrypt.hash(body.password, BCRYPT_SALT_ROUNDS);
+      user.password = await bcrypt.hash(
+        body.password,
+        BackendConstants.AuthConstants.BCRYPT_SALT_ROUNDS,
+      );
     }
 
     const updatedUser = await user.save();
