@@ -6,7 +6,6 @@ import {
 import { UserService } from '../user/user.service';
 import { CommonDto, CommonRo } from '../../../../common';
 import * as bcrypt from 'bcrypt';
-import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class AuthService {
@@ -36,12 +35,5 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
     return this.userService.createUser(dto);
-  }
-
-  public generateJwt(user: any): string {
-    const payload = { sub: user._id, username: user.userName };
-    return jwt.sign(payload, process.env.JWT_SECRET || '', {
-      expiresIn: '7d',
-    });
   }
 }

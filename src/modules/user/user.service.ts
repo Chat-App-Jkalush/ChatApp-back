@@ -1,4 +1,4 @@
-import { Body, Injectable } from '@nestjs/common';
+import { BadRequestException, Body, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
@@ -64,7 +64,7 @@ export class UserService {
       .findOne({ userName: body.userName })
       .exec();
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException('User not found');
     }
 
     if (body.firstName !== undefined && body.firstName.trim() !== '')
@@ -89,7 +89,7 @@ export class UserService {
   ): Promise<{ chats: string[]; total: number }> {
     const user = await this.userModel.findOne({ userName }).exec();
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException('User not found');
     }
     const chatNames = Object.values(user.chats);
     const total = chatNames.length;

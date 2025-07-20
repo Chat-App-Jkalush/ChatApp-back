@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpCode,
   Injectable,
   InternalServerErrorException,
@@ -63,7 +64,7 @@ export class ChatService {
     chatName: string,
   ): Promise<void> {
     const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) throw new Error('User not found');
+    if (!user) throw new BadRequestException('User not found');
     if (!user.chats || typeof user.chats !== 'object') user.chats = {};
     user.chats[chatId] = chatName;
     user.markModified('chats');
@@ -109,7 +110,7 @@ export class ChatService {
       .populate('messages')
       .exec();
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new BadRequestException('Chat not found');
     }
     return {
       chatId: chat._id.toString(),
@@ -126,7 +127,7 @@ export class ChatService {
   ): Promise<void> {
     const chat = await this.chatModel.findById(chatId).exec();
     if (!chat) {
-      throw new Error('Chat not found');
+      throw new BadRequestException('Chat not found');
     }
     chat.messages.push(messageId);
     await chat.save();
@@ -151,12 +152,14 @@ export class ChatService {
       .findById(chatId)
       .then((chat) => {
         if (!chat) {
-          throw new Error('Chat was not found');
+          throw new BadRequestException('Chat was not found');
         }
         return chat.participants;
       })
       .catch((error) => {
-        throw new Error(`Error retrieving participants: ${error.message}`);
+        throw new BadRequestException(
+          `Error retrieving participants: ${error.message}`,
+        );
       });
   }
 
@@ -164,7 +167,7 @@ export class ChatService {
     try {
       const chat = await this.chatModel.findById(chatId);
       if (!chat) {
-        throw new Error('Chat not found');
+        throw new BadRequestException('Chat not found');
       }
       chat.participants = chat.participants.filter(
         (participant) => participant !== userName,

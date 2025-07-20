@@ -2,9 +2,13 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CommonDto, CommonRo } from '../../../../common';
 import { Response } from 'express';
+import { JwtService } from '../chat/services/jwt.service';
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private jwtService: JwtService,
+  ) {}
 
   @Post('login')
   public async login(
@@ -13,7 +17,7 @@ export class AuthController {
   ): Promise<Response | void> {
     try {
       const user = await this.authService.login(dto);
-      const token = this.authService.generateJwt(user);
+      const token = this.jwtService.generateJwt(user);
       response.cookie('token', token, {
         httpOnly: true,
         sameSite: 'lax',
@@ -34,7 +38,7 @@ export class AuthController {
   ): Promise<Response | void> {
     try {
       const user = await this.authService.register(dto);
-      const token = this.authService.generateJwt(user);
+      const token = this.jwtService.generateJwt(user);
       response.cookie('token', token, {
         httpOnly: true,
         sameSite: 'lax',

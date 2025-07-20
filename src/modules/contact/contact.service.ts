@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/database/schemas/users.schema';
@@ -15,7 +15,7 @@ export class ContactService {
     contactName: string,
   ): Promise<User> {
     const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) throw new Error('User not found');
+    if (!user) throw new BadRequestException('User not found');
     if (!user.contacts) user.contacts = [];
     if (!user.contacts.includes(contactName)) {
       user.contacts.push(contactName);
@@ -30,7 +30,7 @@ export class ContactService {
     pageSize: number = 10,
   ): Promise<{ contacts: string[]; total: number }> {
     const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) throw new Error('User not found');
+    if (!user) throw new BadRequestException('User not found');
     const contacts = user.contacts ?? [];
     const total = contacts.length;
     const pagedContacts = contacts.slice(
@@ -46,14 +46,14 @@ export class ContactService {
     const user = await this.userModel
       .findOne({ userName: dto.userName })
       .exec();
-    if (!user) throw new Error('User not found');
+    if (!user) throw new BadRequestException('User not found');
     const contactIndex = user.contacts.indexOf(dto.contactName);
     if (contactIndex > -1) {
       user.contacts.splice(contactIndex, 1);
       await user.save();
       return user;
     } else {
-      throw new Error('Contact not found');
+      throw new BadRequestException('Contact not found');
     }
   }
 }

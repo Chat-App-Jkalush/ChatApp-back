@@ -1,5 +1,11 @@
 import { Model } from 'mongoose';
-import { Body, Get, Injectable, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Get,
+  Injectable,
+  Query,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Message } from 'src/database/schemas/message.schema';
 import { CommonDto, CommonRo } from '../../../../common';
@@ -37,7 +43,7 @@ export class MessageService {
   ): Promise<CommonRo.MessageRo.messageInfoResponse> {
     const message = await this.messageModel.findById(messageId).exec();
     if (!message) {
-      throw new Error('Message not found');
+      throw new BadRequestException('Message not found');
     }
     return {
       sender: message.sender,
