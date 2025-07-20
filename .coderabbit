@@ -1,0 +1,50 @@
+reviewer:
+  - name: CodeRabbit
+    model: gpt-4
+    style: concise
+    tone: professional
+    comment_mode: inline
+    summary: true
+    language: en
+
+rules:
+  # General code hygiene
+  - no-todo-comments
+  - no-unused-imports
+  - no-debug-statements
+  - no-console-log
+  - enforce-docstrings
+  - enforce-type-annotations
+
+  # Function & file size constraints
+  - limit-function-length: 50
+  - limit-file-length: 500
+
+  # Style & formatting
+  - consistent-naming-style: camelCase
+  - prefer-const-over-let
+  - prefer-arrow-functions
+  - enforce-jsdoc-params
+  - consistent-import-ordering
+
+  # Project-specific patterns
+  - enforce-api-response-types
+  - enforce-error-handling
+  - no-hardcoded-secrets
+  - prefer-env-variables
+  - restrict-shared-deps-import-patterns: '^@common/'
+
+exclude_paths:
+  - dist/
+  - build/
+  - node_modules/
+  - coverage/
+  - .next/
+  - *.test.ts
+  - *.spec.ts
+  - **/__mocks__/**
+
+settings:
+  max_comments: 30
+  max_threads: 15
+  auto_review_on_pr: true
