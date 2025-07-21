@@ -8,7 +8,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/database/schemas/chats.schema';
-import { CommonDto, CommonRo } from '../../../../common';
+import { CreateChatDto } from '../../../../common/dto';
+import { ChatRo } from '../../../../common/Ro';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import { chatType } from '../../../../common/enums/chat.enum';
 
@@ -19,9 +20,7 @@ export class ChatService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  public async createChat(
-    dto: CommonDto.ChatDto.CreateChatDto,
-  ): Promise<{ chatId: string; chatName: string; description: string }> {
+  public async createChat(dto: CreateChatDto): Promise<ChatRo> {
     const createdChat = new this.chatModel({
       chatName: dto.chatName,
       description: dto.description,
@@ -41,7 +40,7 @@ export class ChatService {
   public async addUserToChat(
     userName: string,
     chatId: string,
-  ): Promise<Partial<CommonRo.ChatRo.ChatRo>> {
+  ): Promise<Partial<ChatRo>> {
     const chat = await this.chatModel.findById(chatId);
     if (!chat) {
       throw new NotFoundException('Chat not found');
@@ -179,7 +178,10 @@ export class ChatService {
     }
   }
 
-  public async dmExists(dto: CommonDto.ChatDto.DmExitsDto): Promise<boolean> {
+  public async dmExists(dto: {
+    userName1: string;
+    userName2: string;
+  }): Promise<boolean> {
     const { userName1, userName2 } = dto;
     const chat = await this.chatModel.findOne({
       type: chatType.DM,
@@ -188,7 +190,10 @@ export class ChatService {
     return !!chat;
   }
 
-  public async findDm(dto: CommonDto.ChatDto.DeleteDmDto): Promise<string> {
+  public async findDm(dto: {
+    userName1: string;
+    userName2: string;
+  }): Promise<string> {
     const chat = await this.chatModel.findOne({
       type: chatType.DM,
       participants: { $all: [dto.userName1, dto.userName2] },
@@ -199,9 +204,10 @@ export class ChatService {
     return chat._id.toString();
   }
 
-  public async deleteDm(
-    dto: CommonDto.ChatDto.DeleteDmDto,
-  ): Promise<{ message: string }> {
+  public async deleteDm(dto: {
+    userName1: string;
+    userName2: string;
+  }): Promise<{ message: string }> {
     const chatId = await this.findDm(dto);
     const result = await this.chatModel.deleteOne({ _id: chatId });
     if (result.deletedCount === 0) {

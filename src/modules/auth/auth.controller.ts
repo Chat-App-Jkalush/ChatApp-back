@@ -1,6 +1,7 @@
 import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CommonDto, CommonRo } from '../../../../common';
+import { LoginDto, RegisterDto } from '../../../../common/dto';
+import { UserResponse } from '../../../../common/Ro';
 import { Response } from 'express';
 import { JwtService } from '../chat/services/jwt.service';
 @Controller('auth')
@@ -12,7 +13,7 @@ export class AuthController {
 
   @Post('login')
   public async login(
-    @Body() dto: CommonDto.UserDto.LoginDto,
+    @Body() dto: LoginDto,
     @Res() response: Response,
   ): Promise<Response | void> {
     try {
@@ -33,7 +34,7 @@ export class AuthController {
 
   @Post('register')
   public async register(
-    @Body() dto: CommonDto.UserDto.RegisterDto,
+    @Body() dto: RegisterDto,
     @Res() response: Response,
   ): Promise<Response | void> {
     try {

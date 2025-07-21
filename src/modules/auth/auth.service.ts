@@ -4,16 +4,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { CommonDto, CommonRo } from '../../../../common';
+import { LoginDto, RegisterDto } from '../../../../common/dto';
+import { UserResponse } from '../../../../common/Ro';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
   constructor(private readonly userService: UserService) {}
 
-  public async login(
-    dto: CommonDto.UserDto.LoginDto,
-  ): Promise<CommonRo.UserRo.UserResponse> {
+  public async login(dto: LoginDto): Promise<UserResponse> {
     const user = await this.userService.findUserByUserName(dto.userName);
     if (!user) {
       throw new BadRequestException('UserName not found');
@@ -25,9 +24,7 @@ export class AuthService {
     return this.userService.mapToUserResponse(user);
   }
 
-  public async register(
-    dto: CommonDto.UserDto.RegisterDto,
-  ): Promise<CommonRo.UserRo.UserResponse> {
+  public async register(dto: RegisterDto): Promise<UserResponse> {
     const existingUser = await this.userService.findUserByUserName(
       dto.userName,
     );

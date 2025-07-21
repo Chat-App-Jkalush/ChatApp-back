@@ -8,16 +8,15 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ContactService } from './contact.service';
-import { CommonDto, CommonRo } from '../../../../common';
+import { CreateContactDto, RemoveContactDto } from '../../../../common/dto';
+import { User } from '../../../../common/Ro';
 
 @Controller('contacts')
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   @Post('add')
-  public async addContact(
-    @Body() dto: CommonDto.ContactDto.CreateContactDto,
-  ): Promise<CommonRo.UserRo.User> {
+  public async addContact(@Body() dto: CreateContactDto): Promise<User> {
     return this.contactService.addContact(dto.userName, dto.contactName);
   }
 
@@ -35,9 +34,7 @@ export class ContactController {
   }
 
   @Post('remove')
-  public async removeContact(
-    @Body() dto: CommonDto.ContactDto.RemoveContactDto,
-  ): Promise<CommonRo.UserRo.User> {
+  public async removeContact(@Body() dto: RemoveContactDto): Promise<User> {
     try {
       return await this.contactService.removeContact(dto);
     } catch (error: any) {

@@ -8,7 +8,8 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Message } from 'src/database/schemas/message.schema';
-import { CommonDto, CommonRo } from '../../../../common';
+import { CreateMessageDto } from '../../../../common/dto';
+import { MessageResponse, MessageInfoResponse } from '../../../../common/Ro';
 
 @Injectable()
 export class MessageService {
@@ -17,8 +18,8 @@ export class MessageService {
   ) {}
 
   public async createMessage(
-    @Body() dto: CommonDto.MessageDto.CreateMessageDto,
-  ): Promise<CommonRo.MessageRo.MessageResponse> {
+    @Body() dto: CreateMessageDto,
+  ): Promise<MessageResponse> {
     const createdMessage = new this.messageModel(dto);
     const savedMessage = await createdMessage.save();
 
@@ -30,9 +31,7 @@ export class MessageService {
     };
   }
 
-  public async createAndGetId(
-    @Body() dto: CommonDto.MessageDto.CreateMessageDto,
-  ): Promise<string> {
+  public async createAndGetId(@Body() dto: CreateMessageDto): Promise<string> {
     const createdMessage = new this.messageModel(dto);
     const savedMessage = await createdMessage.save();
     return savedMessage._id.toString();
@@ -40,7 +39,7 @@ export class MessageService {
 
   public async getById(
     @Query() messageId: string,
-  ): Promise<CommonRo.MessageRo.messageInfoResponse> {
+  ): Promise<MessageInfoResponse> {
     const message = await this.messageModel.findById(messageId).exec();
     if (!message) {
       throw new BadRequestException('Message not found');
@@ -54,7 +53,7 @@ export class MessageService {
 
   public async *getAllByChatIdStream(
     chatId: string,
-  ): AsyncGenerator<CommonRo.MessageRo.messageInfoResponse> {
+  ): AsyncGenerator<MessageInfoResponse> {
     const cursor = this.messageModel
       .aggregate([
         { $match: { chatId } },

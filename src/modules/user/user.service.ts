@@ -4,7 +4,8 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import * as bcrypt from 'bcrypt';
 import { BackendConstants } from 'src/constants/backend.constants';
-import { CommonDto, CommonRo } from '../../../../common';
+import { RegisterDto } from '../../../../common/dto';
+import { UserResponse } from '../../../../common/Ro';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,7 @@ export class UserService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
-  public mapToUserResponse(user: UserDocument): CommonRo.UserRo.UserResponse {
+  public mapToUserResponse(user: UserDocument): UserResponse {
     return {
       userName: user.userName,
       firstName: user.firstName,
@@ -20,9 +21,7 @@ export class UserService {
     };
   }
 
-  public async createUser(
-    dto: CommonDto.UserDto.RegisterDto,
-  ): Promise<CommonRo.UserRo.UserResponse> {
+  public async createUser(dto: RegisterDto): Promise<UserResponse> {
     const hashedPassword = await bcrypt.hash(
       dto.password,
       BackendConstants.AuthConstants.BCRYPT_SALT_ROUNDS,
@@ -41,7 +40,7 @@ export class UserService {
 
   public async getUserByUserName(
     userName: string,
-  ): Promise<CommonRo.UserRo.UserResponse | null> {
+  ): Promise<UserResponse | null> {
     const user = await this.userModel.findOne({ userName }).exec();
     return user ? this.mapToUserResponse(user) : null;
   }
@@ -59,7 +58,7 @@ export class UserService {
       lastName: string;
       password: string;
     }>,
-  ): Promise<CommonRo.UserRo.UserResponse> {
+  ): Promise<UserResponse> {
     const user = await this.userModel
       .findOne({ userName: body.userName })
       .exec();
@@ -101,7 +100,7 @@ export class UserService {
     userName: string,
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<{ users: CommonRo.UserRo.UserResponse[]; total: number }> {
+  ): Promise<{ users: UserResponse[]; total: number }> {
     const currentUser = await this.userModel.findOne({ userName }).exec();
     const contacts = currentUser?.contacts || [];
 

@@ -7,7 +7,8 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { ChatService } from '../chat.service';
-import { CommonDto, CommonConstants } from '../../../../../common';
+import { CreateMessageDto } from '../../../../../common/dto';
+import { CommonConstants } from '../../../../../common';
 import { MessageService } from '../../message/message.service';
 import { Message } from 'src/database/schemas/message.schema';
 
@@ -64,7 +65,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     payload: { chatId: string; userName: string },
   ): Promise<void> {
     const { chatId, userName } = payload;
-    const leaveMessage: CommonDto.MessageDto.CreateMessageDto = {
+    const leaveMessage: CreateMessageDto = {
       chatId,
       sender: CommonConstants.GatewayConstants.SYSTEM,
       content: `${userName} has left the chat.`,
@@ -85,7 +86,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.NEW_MESSAGE)
   public async handleNewMessage(
     client: Socket,
-    message: CommonDto.MessageDto.CreateMessageDto,
+    message: CreateMessageDto,
   ): Promise<void> {
     const messageId = await this.messageService.createAndGetId(message);
     await this.chatService.addMessageToChat(message.chatId, messageId);
