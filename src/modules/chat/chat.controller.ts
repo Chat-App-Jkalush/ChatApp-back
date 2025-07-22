@@ -6,6 +6,7 @@ import { UpdateUserChats } from '../../../../common/dto/chat/update-user-chats.d
 import { LeaveChatDto } from '../../../../common/dto/chat/leave-chat.dto';
 import { DmExitsDto } from '../../../../common/dto/chat/dm-exists.dto';
 import { ChatRo } from '../../../../common/ro/chat/chat.ro';
+import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
 
 @Controller('chats')
 export class ChatsController {
@@ -34,14 +35,13 @@ export class ChatsController {
     @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
-  ): Promise<{
-    chats: { chatId: string; chatName: string; type: string }[];
-    total: number;
-  }> {
+    @Query('search') search?: string,
+  ): Promise<PaginatedChatsRo> {
     return this.chatService.paginatedChats(
       userName,
       Number(page),
       Number(pageSize),
+      search,
     );
   }
 

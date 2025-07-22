@@ -32,11 +32,13 @@ export class UserController {
     @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
+    @Query('search') search?: string,
   ): Promise<{ users: UserResponse[]; total: number }> {
     return this.userService.paginatedUsers(
       userName,
       Number(page),
       Number(pageSize),
+      search,
     );
   }
 }

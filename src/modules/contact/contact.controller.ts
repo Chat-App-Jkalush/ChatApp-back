@@ -11,6 +11,7 @@ import { ContactService } from './contact.service';
 import { CreateContactDto } from '../../../../common/dto/contact/create-contact.dto';
 import { RemoveContactDto } from '../../../../common/dto/contact/remove-contact.dto';
 import { User } from '../../../../common/ro/user/user.ro';
+import { PaginatedContacts } from '../../../../common/ro/user/paginated-contacts.ro';
 
 @Controller('contacts')
 export class ContactController {
@@ -26,11 +27,13 @@ export class ContactController {
     @Query('userName') userName: string,
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
-  ): Promise<{ contacts: string[]; total: number }> {
+    @Query('search') search?: string,
+  ): Promise<PaginatedContacts> {
     return this.contactService.paginatedContacts(
       userName,
       Number(page),
       Number(pageSize),
+      search,
     );
   }
 

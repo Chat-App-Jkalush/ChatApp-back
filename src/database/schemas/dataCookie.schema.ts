@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { UserCookieRo } from '../../../../common/Ro';
+import { UserCookieRo } from '../../../../common/ro/dataCookie/user-cookie.ro';
 import { CommonConstants } from '../../../../common';
 @Schema({
   timestamps: true,

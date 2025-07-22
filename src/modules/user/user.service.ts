@@ -85,20 +85,22 @@ export class UserService {
     userName: string,
     page: number = 1,
     pageSize: number = 10,
+    search?: string,
   ): Promise<{ users: UserResponse[]; total: number }> {
     const currentUser = await this.userModel.findOne({ userName }).exec();
     const contacts = currentUser?.contacts || [];
-
     const exclude = [userName, ...contacts];
-
-    const query = { userName: { $nin: exclude } };
+    const query: any = { userName: { $nin: exclude } };
+    if (search) {
+      query.userName.$regex = '^' + search;
+      query.userName.$options = 'i';
+    }
     const total = await this.userModel.countDocuments(query);
     const users = await this.userModel
       .find(query)
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .exec();
-
     return {
       users: users.map((user) => this.mapToUserResponse(user)),
       total,

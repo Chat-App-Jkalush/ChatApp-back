@@ -12,6 +12,7 @@ import { CreateChatDto } from '../../../../common/dto/chat/create-chat.dto';
 import { ChatRo } from '../../../../common/ro/chat/chat.ro';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import { chatType } from '../../../../common/enums/chat.enum';
+import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
 
 @Injectable()
 export class ChatService {
@@ -69,24 +70,20 @@ export class ChatService {
     userName: string,
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<{
-    chats: {
-      chatId: string;
-      chatName: string;
-      type: string;
-      description: string;
-    }[];
-    total: number;
-  }> {
+    search?: string,
+  ): Promise<PaginatedChatsRo> {
+    const query: any = { participants: userName };
+    if (search) {
+      query.chatName = { $regex: '^' + search, $options: 'i' };
+    }
+
     const chats = await this.chatModel
-      .find({ participants: userName })
+      .find(query)
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .exec();
 
-    const total = await this.chatModel.countDocuments({
-      participants: userName,
-    });
+    const total = await this.chatModel.countDocuments(query);
 
     const chatList = chats.map((chat) => ({
       chatId: chat._id.toString(),

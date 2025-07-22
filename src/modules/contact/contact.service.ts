@@ -2,7 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User } from 'src/database/schemas/users.schema';
-import { RemoveContactDto } from '../../../../common/dto';
+import { RemoveContactDto } from '../../../../common/dto/contact/remove-contact.dto';
+import { PaginatedContacts } from '../../../../common/ro/user/paginated-contacts.ro';
 
 @Injectable()
 export class ContactService {
@@ -28,10 +29,15 @@ export class ContactService {
     userName: string,
     page: number = 1,
     pageSize: number = 10,
-  ): Promise<{ contacts: string[]; total: number }> {
+    search?: string,
+  ): Promise<PaginatedContacts> {
     const user = await this.userModel.findOne({ userName }).exec();
     if (!user) throw new BadRequestException('User not found');
-    const contacts = user.contacts ?? [];
+    let contacts = user.contacts ?? [];
+    if (search) {
+      const regex = new RegExp('^' + search, 'i');
+      contacts = contacts.filter((c: string) => regex.test(c));
+    }
     const total = contacts.length;
     const pagedContacts = contacts.slice(
       (page - 1) * pageSize,
