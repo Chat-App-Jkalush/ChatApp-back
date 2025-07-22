@@ -57,15 +57,9 @@ export class ChatService {
     };
   }
 
-  public async updateUserChats(
-    userName: string,
-    chatId: string,
-    chatName: string,
-  ): Promise<void> {
+  public async updateUserChats(userName: string): Promise<void> {
     const user = await this.userModel.findOne({ userName }).exec();
     if (!user) throw new BadRequestException('User not found');
-    if (!user.chats || typeof user.chats !== 'object') user.chats = {};
-    user.chats[chatId] = chatName;
     user.markModified('chats');
     await user.save();
   }

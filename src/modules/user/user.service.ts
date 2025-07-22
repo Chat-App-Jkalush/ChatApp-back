@@ -81,21 +81,6 @@ export class UserService {
     return this.mapToUserResponse(updatedUser);
   }
 
-  public async paginatedChats(
-    userName: string,
-    page: number = 1,
-    pageSize: number = 10,
-  ): Promise<{ chats: string[]; total: number }> {
-    const user = await this.userModel.findOne({ userName }).exec();
-    if (!user) {
-      throw new BadRequestException('User not found');
-    }
-    const chatNames = Object.values(user.chats);
-    const total = chatNames.length;
-    const chats = chatNames.slice((page - 1) * pageSize, page * pageSize);
-    return { chats, total };
-  }
-
   public async paginatedUsers(
     userName: string,
     page: number = 1,

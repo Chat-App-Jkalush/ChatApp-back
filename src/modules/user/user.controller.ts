@@ -26,19 +26,6 @@ export class UserController {
     return this.userService.updateUserProfile(body);
   }
 
-  @Get('paginated-chats')
-  public async paginatedChats(
-    @Query('userName') userName: string,
-    @Query('page') page: string,
-    @Query('pageSize') pageSize: string,
-  ): Promise<{ chats: string[]; total: number }> {
-    return this.userService.paginatedChats(
-      userName,
-      Number(page),
-      Number(pageSize),
-    );
-  }
-
   @Get('paginated-users')
   public async paginatedUsers(
     @Query('userName') userName: string,

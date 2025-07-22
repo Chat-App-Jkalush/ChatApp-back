@@ -27,11 +27,7 @@ export class ChatsController {
 
   @Post('update-user-chats')
   public async updateUserChats(@Body() dto: UpdateUserChats): Promise<void> {
-    return this.chatService.updateUserChats(
-      dto.userName,
-      dto.chatId,
-      dto.chatName,
-    );
+    return this.chatService.updateUserChats(dto.userName);
   }
 
   @Get('paginated')
