@@ -1,18 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { chatType } from '../../../../common/enums/chat.enum';
-
-@Schema({ _id: false })
-export class EmbeddedMessage {
-  @Prop({ required: true })
-  sender: string;
-
-  @Prop({ required: true })
-  content: string;
-
-  @Prop({ required: true, default: Date.now })
-  createdAt: Date;
-}
-const EmbeddedMessageSchema = SchemaFactory.createForClass(EmbeddedMessage);
+import {
+  EmbeddedMessage,
+  EmbeddedMessageSchema,
+} from './embedded-message.schema';
+import { BackendConstants } from 'src/constants';
 
 @Schema({
   timestamps: true,
@@ -25,7 +17,10 @@ export class Chat {
   @Prop({ required: true, trim: true })
   description: string;
 
-  @Prop({ type: [EmbeddedMessageSchema], default: [] })
+  @Prop({
+    type: [EmbeddedMessageSchema],
+    default: [],
+  })
   messages: EmbeddedMessage[];
 
   @Prop({ required: true, type: [String] })
