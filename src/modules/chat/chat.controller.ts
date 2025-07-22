@@ -7,6 +7,7 @@ import { LeaveChatDto } from '../../../../common/dto/chat/leave-chat.dto';
 import { DmExitsDto } from '../../../../common/dto/chat/dm-exists.dto';
 import { ChatRo } from '../../../../common/ro/chat/chat.ro';
 import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
+import { MessageInfoResponse } from '../../../../common/ro/message/message-info-response.ro';
 
 @Controller('chats')
 export class ChatsController {
@@ -71,5 +72,20 @@ export class ChatsController {
   @Post('delete-dm')
   public async deleteDm(@Body() dto: DmExitsDto): Promise<{ message: string }> {
     return this.chatService.deleteDm(dto);
+  }
+
+  @Get(':chatId/messages')
+  public async getChatMessages(@Param('chatId') chatId: string) {
+    const chat = await this.chatService.getChatById(chatId);
+    if (!chat) return [];
+    return chat.messages || [];
+  }
+
+  @Post(':chatId/messages')
+  public async addMessageToChat(
+    @Param('chatId') chatId: string,
+    @Body() body: { sender: string; content: string },
+  ) {
+    return this.chatService.addMessageToChat(chatId, body.sender, body.content);
   }
 }

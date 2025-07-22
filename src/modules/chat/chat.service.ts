@@ -195,4 +195,21 @@ export class ChatService {
     }
     return { message: 'Direct message deleted successfully' };
   }
+
+  public async addMessageToChat(
+    chatId: string,
+    sender: string,
+    content: string,
+  ) {
+    const chat = await this.chatModel.findById(chatId);
+    if (!chat) throw new Error('Chat not found');
+    const embeddedMessage = {
+      sender,
+      content,
+      createdAt: new Date(),
+    };
+    chat.messages.push(embeddedMessage);
+    await chat.save();
+    return embeddedMessage;
+  }
 }

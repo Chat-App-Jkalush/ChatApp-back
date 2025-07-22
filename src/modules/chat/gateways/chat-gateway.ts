@@ -142,7 +142,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client: Socket,
     message: CreateMessageDto,
   ): Promise<void> {
-    // const savedMessage = await this.messageService.createMessage(message); // This line was removed
+    const embeddedMessage = await this.chatService.addMessageToChat(
+      message.chatId,
+      message.sender,
+      message.content,
+    );
     if (!this.chatIdToSockets.has(message.chatId)) {
       this.chatIdToSockets.set(message.chatId, new Set());
     }
@@ -151,8 +155,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socketsSet.add(client);
       client.join(message.chatId);
     }
+    const payload = { ...embeddedMessage, chatId: message.chatId };
+    console.log('Emitting REPLY with:', payload);
     socketsSet.forEach((socket: Socket) => {
-      // socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, savedMessage); // This line was removed
+      socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, payload);
     });
   }
 
