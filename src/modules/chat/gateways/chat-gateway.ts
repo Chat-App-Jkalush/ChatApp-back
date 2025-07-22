@@ -1,4 +1,6 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   SubscribeMessage,
@@ -10,7 +12,6 @@ import { ChatService } from '../chat.service';
 import { CreateMessageDto } from '../../../../../common/dto';
 import { CommonConstants } from '../../../../../common';
 import { MessageService } from '../../message/message.service';
-import { Message } from 'src/database/schemas/message.schema';
 
 @WebSocketGateway(CommonConstants.GatewayConstants.DEFAULT_PORT, {
   cors: { origin: CommonConstants.GatewayConstants.CLIENT_ORIGIN },
@@ -30,7 +31,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() public server!: Server;
 
   private broadcastOnlineStatus(userName: string, isOnline: boolean): void {
-    this.server.emit('contactOnlineStatus', { userName, isOnline });
+    this.server.emit(
+      CommonConstants.GatewayConstants.EVENTS.CONTACT_ONLINE_STATUS,
+      { userName, isOnline },
+    );
   }
 
   public handleConnection(client: Socket): void {}
@@ -41,22 +45,69 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     payload: { userName: string },
   ): Promise<void> {
     const { userName } = payload;
+
     const previousSocket = this.userNameToSocket.get(userName);
     if (previousSocket && previousSocket.id !== client.id) {
       previousSocket.disconnect(true);
     }
+
     this.userNameToSocket.set(userName, client);
+
     const userChats = await this.chatService.getChatsByUser(userName);
+
     for (const chat of userChats) {
       const chatId = chat.chatId;
       if (!chatId) continue;
+
       if (!this.chatIdToSockets.has(chatId)) {
         this.chatIdToSockets.set(chatId, new Set());
       }
+
       this.chatIdToSockets.get(chatId)!.add(client);
       client.join(chatId);
+
+      client.emit(CommonConstants.GatewayConstants.EVENTS.JOIN_NEW_CHAT, {
+        chatId,
+      });
     }
+
     this.broadcastOnlineStatus(userName, true);
+  }
+
+  @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.JOIN_ROOM)
+  public handleJoinRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { chatId: string },
+  ): void {
+    client.join(payload.chatId);
+    if (!this.chatIdToSockets.has(payload.chatId)) {
+      this.chatIdToSockets.set(payload.chatId, new Set());
+    }
+    this.chatIdToSockets.get(payload.chatId)!.add(client);
+  }
+
+  @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.JOIN_NEW_CHAT)
+  public async handleJoinNewChat(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { chatId: string; targetUser: string },
+  ): Promise<void> {
+    const { chatId, targetUser } = payload;
+    const targetSocket = this.userNameToSocket.get(targetUser);
+
+    if (!targetSocket) {
+      return;
+    }
+
+    targetSocket.join(chatId);
+
+    if (!this.chatIdToSockets.has(chatId)) {
+      this.chatIdToSockets.set(chatId, new Set());
+    }
+    this.chatIdToSockets.get(chatId)!.add(targetSocket);
+
+    targetSocket.emit(CommonConstants.GatewayConstants.EVENTS.JOIN_NEW_CHAT, {
+      chatId,
+    });
   }
 
   @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.LEAVE_CHAT)
@@ -123,7 +174,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.IS_ONLINE)
   public handleIsOnline(client: Socket, payload: { userName: string }): void {
     const isOnline = this.userNameToSocket.has(payload.userName);
-    client.emit('isOnlineResult', { userName: payload.userName, isOnline });
+    client.emit(CommonConstants.GatewayConstants.EVENTS.IS_ONLINE_RESULT, {
+      userName: payload.userName,
+      isOnline,
+    });
   }
 
   @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.GET_ONLINE_USERS)
@@ -134,6 +188,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const onlineContacts = payload.contacts.filter((contact: string) =>
       this.userNameToSocket.has(contact),
     );
-    client.emit('onlineUsersList', { onlineContacts });
+    client.emit(CommonConstants.GatewayConstants.EVENTS.ONLINE_USERS_LIST, {
+      onlineContacts,
+    });
   }
 }

@@ -15,6 +15,7 @@ export class ChatsController {
 
   @Post()
   public async createChat(@Body() dto: CreateChatDto): Promise<ChatRo> {
+    console.log('Creating chat with DTO:', dto);
     return await this.chatService.createChat(dto);
   }
 

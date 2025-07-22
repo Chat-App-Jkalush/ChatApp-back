@@ -30,6 +30,6 @@ export namespace BackendConstants {
       CHAT_ID: 'chatId',
     } as const;
 
-    export const EXPIRES_IN: number = 60 * 60 * 12;
+    export const EXPIRES_IN: number = 10;
   }
 }

@@ -28,6 +28,7 @@ export class ChatService {
       participants: dto.participants ?? [],
       type: dto.type,
     });
+    console.log('Creating chat with participants:', dto.participants);
     const savedChat = await createdChat.save();
 
     return {
