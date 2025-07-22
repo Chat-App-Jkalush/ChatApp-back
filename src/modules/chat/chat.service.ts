@@ -100,7 +100,7 @@ export class ChatService {
   public async getChatById(chatId: string): Promise<any> {
     const chat = await this.chatModel
       .findById(chatId)
-      .populate('messages')
+      // .populate('messages') // Not needed for embedded arrays
       .exec();
     if (!chat) {
       throw new BadRequestException('Chat not found');
@@ -212,6 +212,7 @@ export class ChatService {
     };
     chat.messages.push(embeddedMessage);
     await chat.save();
+    console.log(`Message saved to chat ${chatId}:`, embeddedMessage);
     return embeddedMessage;
   }
 }

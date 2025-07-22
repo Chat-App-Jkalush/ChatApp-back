@@ -24,7 +24,6 @@ export class ChatCleanupService implements OnModuleInit, OnModuleDestroy {
 
   private async cleanupExpiredMessages(): Promise<void> {
     try {
-      this.logger.log('Starting cleanup of expired embedded messages...');
       const expiryDate = new Date(
         Date.now() - BackendConstants.MessageConstants.EXPIRES_IN * 1000,
       );
@@ -43,21 +42,17 @@ export class ChatCleanupService implements OnModuleInit, OnModuleDestroy {
           await chat.save();
         }
       }
-      this.logger.log(
-        `Cleaned up ${totalRemoved} expired messages from chats.`,
-      );
     } catch (error) {
       this.logger.error('Failed to cleanup expired embedded messages:', error);
     }
   }
 
   private setupPeriodicCleanup(): void {
-    this.logger.log('Setting up periodic cleanup for expired messages...');
     setInterval(
       async () => {
         await this.cleanupExpiredMessages();
       },
-      60 * 60 * 1000, // every hour
+      60 * 60 * 1000,
     );
   }
 
