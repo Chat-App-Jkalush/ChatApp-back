@@ -1,13 +1,7 @@
 import { Model } from 'mongoose';
-import {
-  BadRequestException,
-  Body,
-  Get,
-  Injectable,
-  Query,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Message } from 'src/database/schemas/message.schema';
+import { Chat } from 'src/database/schemas/chats.schema';
 import { CreateMessageDto } from '../../../../common/dto/message/create-message.dto';
 import { MessageResponse } from '../../../../common/ro/message/message-response.ro';
 import { MessageInfoResponse } from '../../../../common/ro/message/message-info-response.ro';
@@ -15,63 +9,60 @@ import { MessageInfoResponse } from '../../../../common/ro/message/message-info-
 @Injectable()
 export class MessageService {
   constructor(
-    @InjectModel(Message.name) private readonly messageModel: Model<Message>,
+    @InjectModel(Chat.name) private readonly chatModel: Model<Chat>,
   ) {}
 
-  public async createMessage(
-    @Body() dto: CreateMessageDto,
-  ): Promise<MessageResponse> {
-    const createdMessage = new this.messageModel(dto);
-    const savedMessage = await createdMessage.save();
-
+  public async createMessage(dto: CreateMessageDto): Promise<MessageResponse> {
+    const chat = await this.chatModel.findById(dto.chatId);
+    if (!chat) {
+      throw new BadRequestException('Chat not found');
+    }
+    const message = {
+      sender: dto.sender,
+      content: dto.content,
+      createdAt: new Date(),
+    };
+    chat.messages.push(message);
+    await chat.save();
     return {
-      chatId: savedMessage.chatId,
-      sender: savedMessage.sender,
-      content: savedMessage.content,
-      createdAt: savedMessage.createdAt || new Date(),
+      chatId: chat._id.toString(),
+      sender: message.sender,
+      content: message.content,
+      createdAt: message.createdAt,
     };
   }
 
-  public async createAndGetId(@Body() dto: CreateMessageDto): Promise<string> {
-    const createdMessage = new this.messageModel(dto);
-    const savedMessage = await createdMessage.save();
-    return savedMessage._id.toString();
-  }
-
   public async getById(
-    @Query() messageId: string,
+    messageId: string,
+    chatId: string,
   ): Promise<MessageInfoResponse> {
-    const message = await this.messageModel.findById(messageId).exec();
+    const chat = await this.chatModel.findById(chatId);
+    if (!chat) {
+      throw new BadRequestException('Chat not found');
+    }
+    // For demo: use createdAt as a pseudo-ID (in real apps, add a unique id to each message)
+    const message = chat.messages.find(
+      (msg) => msg.createdAt && msg.createdAt.toISOString() === messageId,
+    );
     if (!message) {
       throw new BadRequestException('Message not found');
     }
     return {
       sender: message.sender,
       content: message.content,
-      createdAt: message.createdAt || new Date(),
+      createdAt: message.createdAt,
     };
   }
 
-  public async *getAllByChatIdStream(
-    chatId: string,
-  ): AsyncGenerator<MessageInfoResponse> {
-    const cursor = this.messageModel
-      .aggregate([
-        { $match: { chatId } },
-        { $project: { sender: 1, content: 1, createdAt: 1, _id: 0 } },
-      ])
-      .cursor({ batchSize: 1000 });
-
-    try {
-      for await (const document of cursor) {
-        yield {
-          sender: document.sender,
-          content: document.content,
-          createdAt: document.createdAt || new Date(),
-        };
-      }
-    } finally {
-      await cursor.close();
+  public async getAllByChatId(chatId: string): Promise<MessageInfoResponse[]> {
+    const chat = await this.chatModel.findById(chatId);
+    if (!chat) {
+      throw new BadRequestException('Chat not found');
     }
+    return chat.messages.map((msg) => ({
+      sender: msg.sender,
+      content: msg.content,
+      createdAt: msg.createdAt,
+    }));
   }
 }

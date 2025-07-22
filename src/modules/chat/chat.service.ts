@@ -112,18 +112,6 @@ export class ChatService {
     };
   }
 
-  public async addMessageToChat(
-    chatId: string,
-    messageId: string,
-  ): Promise<void> {
-    const chat = await this.chatModel.findById(chatId).exec();
-    if (!chat) {
-      throw new BadRequestException('Chat not found');
-    }
-    chat.messages.push(messageId);
-    await chat.save();
-  }
-
   public async getChatsByUser(
     userName: string,
   ): Promise<
