@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { RegisterDto } from '../../../../common/dto/user/register.dto';
 import { UserUpdateDto } from '../../../../common/dto/user/update-user.dto';
 import { UserResponse } from '../../../../common/ro/user/user-response.ro';
+import { PaginatedUsersRo } from '../../../../common/ro/user/paginated-users.ro';
 
 @Controller('users')
 export class UserController {
@@ -33,7 +34,7 @@ export class UserController {
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
     @Query('search') search?: string,
-  ): Promise<{ users: UserResponse[]; total: number }> {
+  ): Promise<PaginatedUsersRo> {
     return this.userService.paginatedUsers(
       userName,
       Number(page),

@@ -8,6 +8,8 @@ import { DmExitsDto } from '../../../../common/dto/chat/dm-exists.dto';
 import { ChatRo } from '../../../../common/ro/chat/chat.ro';
 import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
 import { MessageInfoResponse } from '../../../../common/ro/message/message-info-response.ro';
+import { DeleteDmResponseRo } from '../../../../common/ro/chat/delete-dm-response.ro';
+import { EmbeddedMessage } from 'src/database/schemas/embedded-message.schema';
 
 @Controller('chats')
 export class ChatsController {
@@ -70,7 +72,7 @@ export class ChatsController {
   }
 
   @Post('delete-dm')
-  public async deleteDm(@Body() dto: DmExitsDto): Promise<{ message: string }> {
+  public async deleteDm(@Body() dto: DmExitsDto): Promise<DeleteDmResponseRo> {
     return this.chatService.deleteDm(dto);
   }
 
@@ -85,7 +87,7 @@ export class ChatsController {
   public async addMessageToChat(
     @Param('chatId') chatId: string,
     @Body() body: { sender: string; content: string },
-  ) {
+  ): Promise<EmbeddedMessage> {
     return this.chatService.addMessageToChat(chatId, body.sender, body.content);
   }
 }

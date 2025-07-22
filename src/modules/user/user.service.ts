@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { BackendConstants } from 'src/constants/backend.constants';
 import { RegisterDto } from '../../../../common/dto/user/register.dto';
 import { UserResponse } from '../../../../common/ro/user/user-response.ro';
+import { PaginatedUsersRo } from '../../../../common/ro/user/paginated-users.ro';
 
 @Injectable()
 export class UserService {
@@ -86,7 +87,7 @@ export class UserService {
     page: number = 1,
     pageSize: number = 10,
     search?: string,
-  ): Promise<{ users: UserResponse[]; total: number }> {
+  ): Promise<PaginatedUsersRo> {
     const currentUser = await this.userModel.findOne({ userName }).exec();
     const contacts = currentUser?.contacts || [];
     const exclude = [userName, ...contacts];

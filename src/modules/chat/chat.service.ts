@@ -13,6 +13,8 @@ import { ChatRo } from '../../../../common/ro/chat/chat.ro';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import { chatType } from '../../../../common/enums/chat.enum';
 import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
+import { EmbeddedMessage } from 'src/database/schemas/embedded-message.schema';
+import { DeleteDmResponseRo } from '../../../../common/ro/chat/delete-dm-response.ro';
 
 @Injectable()
 export class ChatService {
@@ -187,7 +189,7 @@ export class ChatService {
   public async deleteDm(dto: {
     userName1: string;
     userName2: string;
-  }): Promise<{ message: string }> {
+  }): Promise<DeleteDmResponseRo> {
     const chatId = await this.findDm(dto);
     const result = await this.chatModel.deleteOne({ _id: chatId });
     if (result.deletedCount === 0) {
@@ -200,10 +202,10 @@ export class ChatService {
     chatId: string,
     sender: string,
     content: string,
-  ) {
+  ): Promise<EmbeddedMessage> {
     const chat = await this.chatModel.findById(chatId);
     if (!chat) throw new Error('Chat not found');
-    const embeddedMessage = {
+    const embeddedMessage: EmbeddedMessage = {
       sender,
       content,
       createdAt: new Date(),

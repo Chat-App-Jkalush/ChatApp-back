@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DataCookie } from 'src/database/schemas/dataCookie.schema';
+import { UserCookieRo } from '../../../../common/ro/dataCookie/user-cookie.ro';
 @Injectable()
 export class DataCookieService {
   constructor(
@@ -12,26 +13,43 @@ export class DataCookieService {
     userName: string;
     cookie: string;
     latestChatId?: string;
-  }): Promise<DataCookie> {
-    return await this.userModel
+  }): Promise<UserCookieRo> {
+    const dataCookie = await this.userModel
       .findOneAndUpdate(
         { userName: body.userName },
         { $set: body },
         { upsert: true, new: true },
       )
       .exec();
+    return {
+      userName: dataCookie.userName,
+      cookie: dataCookie.cookie,
+      latestChatId: dataCookie.latestChatId,
+    };
   }
 
-  public async getUserCookie(cookie: string): Promise<DataCookie | null> {
-    return this.userModel.findOne({ cookie }).exec();
+  public async getUserCookie(cookie: string): Promise<UserCookieRo | null> {
+    const dataCookie = await this.userModel.findOne({ cookie }).exec();
+    if (!dataCookie) return null;
+    return {
+      userName: dataCookie.userName,
+      cookie: dataCookie.cookie,
+      latestChatId: dataCookie.latestChatId,
+    };
   }
 
   public async setLatestChatId(
     userName: string,
     latestChatId: string,
-  ): Promise<DataCookie | null> {
-    return this.userModel
+  ): Promise<UserCookieRo | null> {
+    const dataCookie = await this.userModel
       .findOneAndUpdate({ userName }, { latestChatId }, { new: true })
       .exec();
+    if (!dataCookie) return null;
+    return {
+      userName: dataCookie.userName,
+      cookie: dataCookie.cookie,
+      latestChatId: dataCookie.latestChatId,
+    };
   }
 }
