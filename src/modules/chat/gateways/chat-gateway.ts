@@ -132,15 +132,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       sender: CommonConstants.GatewayConstants.SYSTEM,
       content: `${userName} has left the chat.`,
     };
-    const messageId = await this.messageService.createAndGetId(leaveMessage);
-    await this.chatService.addMessageToChat(chatId, messageId);
+    const message = await this.messageService.createMessage(leaveMessage);
     const sockets = this.chatIdToSockets.get(chatId);
     if (sockets) {
       sockets.forEach((socket: Socket) => {
-        socket.emit(
-          CommonConstants.GatewayConstants.EVENTS.REPLY,
-          leaveMessage,
-        );
+        socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, message);
       });
     }
   }
@@ -150,8 +146,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client: Socket,
     message: CreateMessageDto,
   ): Promise<void> {
-    const messageId = await this.messageService.createAndGetId(message);
-    await this.chatService.addMessageToChat(message.chatId, messageId);
+    const savedMessage = await this.messageService.createMessage(message);
     if (!this.chatIdToSockets.has(message.chatId)) {
       this.chatIdToSockets.set(message.chatId, new Set());
     }
@@ -161,7 +156,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.join(message.chatId);
     }
     socketsSet.forEach((socket: Socket) => {
-      socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, message);
+      socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, savedMessage);
     });
   }
 

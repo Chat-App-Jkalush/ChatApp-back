@@ -18,20 +18,15 @@ export class MessageController {
   @Get()
   public async getById(
     @Query('messageId') messageId: string,
+    @Query('chatId') chatId: string,
   ): Promise<MessageInfoResponse> {
-    return this.messageService.getById(messageId);
+    return this.messageService.getById(messageId, chatId);
   }
 
   @Get('by-chat')
   public async getAllByChatId(
     @Query('chatId') chatId: string,
   ): Promise<MessageInfoResponse[]> {
-    const messages: MessageInfoResponse[] = [];
-    for await (const message of this.messageService.getAllByChatIdStream(
-      chatId,
-    )) {
-      messages.push(message);
-    }
-    return messages;
+    return this.messageService.getAllByChatId(chatId);
   }
 }
