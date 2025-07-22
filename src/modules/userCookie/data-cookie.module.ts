@@ -4,8 +4,8 @@ import {
   DataCookie,
   DataCookieSchema,
 } from 'src/database/schemas/dataCookie.schema';
-import { DataCookieService } from './dataCookie.service';
-import { DataCookieController } from './dataCookie.controller';
+import { DataCookieService } from './data-cookie.service';
+import { DataCookieController } from './data-cookie.controller';
 
 @Module({
   imports: [

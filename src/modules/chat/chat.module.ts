@@ -7,7 +7,7 @@ import { User, UserSchema } from 'src/database/schemas/users.schema';
 import { Message, MessageSchema } from 'src/database/schemas/message.schema';
 import { ChatGateway } from './gateways/chat-gateway';
 import { MessagesModule } from '../message/message.module';
-import { ChatCleanupService } from './services/chatCleanup.service';
+import { ChatCleanupService } from './services/chat-cleanup.service';
 
 @Module({
   imports: [

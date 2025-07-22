@@ -8,8 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { MessagesModule } from './modules/message/message.module';
 import { ContactModule } from './modules/contact/constact.module';
-import { DataCookieModule } from './modules/userCookie/dataCookie.module';
-import { DataCookie } from './database/schemas/dataCookie.schema';
+import { DataCookieModule } from './modules/userCookie/data-cookie.module';
 
 @Module({
   imports: [
