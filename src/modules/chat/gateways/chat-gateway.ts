@@ -11,7 +11,6 @@ import { Socket, Server } from 'socket.io';
 import { ChatService } from '../chat.service';
 import { CreateMessageDto } from '../../../../../common/dto/message/create-message.dto';
 import { CommonConstants } from '../../../../../common';
-import { MessageService } from '../../message/message.service';
 
 @WebSocketGateway(CommonConstants.GatewayConstants.DEFAULT_PORT, {
   cors: { origin: CommonConstants.GatewayConstants.CLIENT_ORIGIN },
@@ -23,10 +22,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Set<Socket>
   >();
 
-  constructor(
-    private chatService: ChatService,
-    private messageService: MessageService,
-  ) {}
+  constructor(private chatService: ChatService) {}
 
   @WebSocketServer() public server!: Server;
 
@@ -132,11 +128,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       sender: CommonConstants.GatewayConstants.SYSTEM,
       content: `${userName} has left the chat.`,
     };
-    const message = await this.messageService.createMessage(leaveMessage);
+    // const message = await this.messageService.createMessage(leaveMessage); // This line was removed
     const sockets = this.chatIdToSockets.get(chatId);
     if (sockets) {
       sockets.forEach((socket: Socket) => {
-        socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, message);
+        // socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, message); // This line was removed
       });
     }
   }
@@ -146,7 +142,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client: Socket,
     message: CreateMessageDto,
   ): Promise<void> {
-    const savedMessage = await this.messageService.createMessage(message);
+    // const savedMessage = await this.messageService.createMessage(message); // This line was removed
     if (!this.chatIdToSockets.has(message.chatId)) {
       this.chatIdToSockets.set(message.chatId, new Set());
     }
@@ -156,7 +152,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       client.join(message.chatId);
     }
     socketsSet.forEach((socket: Socket) => {
-      socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, savedMessage);
+      // socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, savedMessage); // This line was removed
     });
   }
 
