@@ -4,8 +4,8 @@ import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import * as bcrypt from 'bcrypt';
 import { BackendConstants } from 'src/constants/backend.constants';
-import { RegisterDto } from '../../../../common/dto';
-import { UserResponse } from '../../../../common/Ro';
+import { RegisterDto } from '../../../../common/dto/user/register.dto';
+import { UserResponse } from '../../../../common/ro/user/user-response.ro';
 
 @Injectable()
 export class UserService {

@@ -37,6 +37,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
   }
 
+  public notifyAddedToChat(participants: string[]): void {
+    participants.forEach((userName) => {
+      const socket = this.userNameToSocket.get(userName);
+      if (socket) {
+        socket.emit(CommonConstants.GatewayConstants.EVENTS.ADDED_TO_CHAT);
+      }
+    });
+  }
+
   public handleConnection(client: Socket): void {}
 
   @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.JOIN_CHAT)
@@ -108,6 +117,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     targetSocket.emit(CommonConstants.GatewayConstants.EVENTS.JOIN_NEW_CHAT, {
       chatId,
     });
+
+    this.notifyAddedToChat([targetUser]);
   }
 
   @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.LEAVE_CHAT)

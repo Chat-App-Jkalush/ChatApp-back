@@ -4,8 +4,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../user/user.service';
-import { LoginDto, RegisterDto } from '../../../../common/dto';
-import { UserResponse } from '../../../../common/Ro';
+import { LoginDto } from '../../../../common/dto/user/login.dto';
+import { RegisterDto } from '../../../../common/dto/user/register.dto';
+import { UserResponse } from '../../../../common/ro/user/user-response.ro';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()

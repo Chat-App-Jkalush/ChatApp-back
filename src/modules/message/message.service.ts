@@ -8,8 +8,9 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Message } from 'src/database/schemas/message.schema';
-import { CreateMessageDto } from '../../../../common/dto';
-import { MessageResponse, MessageInfoResponse } from '../../../../common/Ro';
+import { CreateMessageDto } from '../../../../common/dto/message/create-message.dto';
+import { MessageResponse } from '../../../../common/ro/message/message-response.ro';
+import { MessageInfoResponse } from '../../../../common/ro/message/message-info-response.ro';
 
 @Injectable()
 export class MessageService {

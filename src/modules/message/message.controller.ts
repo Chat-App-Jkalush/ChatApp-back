@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { MessageService } from './message.service';
-import { CreateMessageDto } from '../../../../common/dto';
-import { MessageResponse, MessageInfoResponse } from '../../../../common/Ro';
+import { CreateMessageDto } from '../../../../common/dto/message/create-message.dto';
+import { MessageResponse } from '../../../../common/ro/message/message-response.ro';
+import { MessageInfoResponse } from '../../../../common/ro/message/message-info-response.ro';
 
 @Controller('messages')
 export class MessageController {

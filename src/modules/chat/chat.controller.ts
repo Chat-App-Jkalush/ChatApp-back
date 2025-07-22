@@ -1,13 +1,11 @@
 import { Body, Controller, Post, Get, Query, Param } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import {
-  CreateChatDto,
-  AddUserToChatDto,
-  UpdateUserChats,
-  LeaveChatDto,
-  DmExitsDto,
-} from '../../../../common/dto';
-import { ChatRo } from '../../../../common/Ro';
+import { CreateChatDto } from '../../../../common/dto/chat/create-chat.dto';
+import { AddUserToChatDto } from '../../../../common/dto/chat/add-user-to-chat.dto';
+import { UpdateUserChats } from '../../../../common/dto/chat/update-user-chats.dto';
+import { LeaveChatDto } from '../../../../common/dto/chat/leave-chat.dto';
+import { DmExitsDto } from '../../../../common/dto/chat/dm-exists.dto';
+import { ChatRo } from '../../../../common/ro/chat/chat.ro';
 
 @Controller('chats')
 export class ChatsController {

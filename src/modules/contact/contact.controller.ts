@@ -8,8 +8,9 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { ContactService } from './contact.service';
-import { CreateContactDto, RemoveContactDto } from '../../../../common/dto';
-import { User } from '../../../../common/Ro';
+import { CreateContactDto } from '../../../../common/dto/contact/create-contact.dto';
+import { RemoveContactDto } from '../../../../common/dto/contact/remove-contact.dto';
+import { User } from '../../../../common/ro/user/user.ro';
 
 @Controller('contacts')
 export class ContactController {

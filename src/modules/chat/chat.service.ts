@@ -8,8 +8,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Chat } from 'src/database/schemas/chats.schema';
-import { CreateChatDto } from '../../../../common/dto';
-import { ChatRo } from '../../../../common/Ro';
+import { CreateChatDto } from '../../../../common/dto/chat/create-chat.dto';
+import { ChatRo } from '../../../../common/ro/chat/chat.ro';
 import { User, UserDocument } from 'src/database/schemas/users.schema';
 import { chatType } from '../../../../common/enums/chat.enum';
 

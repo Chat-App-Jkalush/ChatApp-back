@@ -15,7 +15,7 @@ export class Chat {
   @Prop({ required: true, type: [String], default: [] })
   messages: string[];
 
-  @Prop({ required: true, type: [String], default: [] })
+  @Prop({ required: true, type: [String] })
   participants: string[];
 
   @Prop({ required: true, enum: Object.values(chatType), default: chatType.DM })
