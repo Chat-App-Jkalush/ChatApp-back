@@ -136,15 +136,28 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     payload: { chatId: string; userName: string },
   ): Promise<void> {
     const { chatId, userName } = payload;
+    if (!payload.userName) {
+      return;
+    }
     const leaveMessage: CreateMessageDto = {
       chatId,
       sender: CommonConstants.GatewayConstants.SYSTEM,
       content: `${userName} has left the chat.`,
     };
+
+    const embeddedMessage =
+      await this.chatService.addMessageToChat(leaveMessage);
+
     const sockets = this.chatIdToSockets.get(chatId);
     if (sockets) {
-      sockets.forEach((socket: Socket) => {});
+      const payload = { ...embeddedMessage, chatId };
+      sockets.forEach((socket: Socket) => {
+        socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, payload);
+      });
+      sockets.delete(client);
     }
+
+    client.leave(chatId);
   }
 
   @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.NEW_MESSAGE)
