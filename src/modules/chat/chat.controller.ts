@@ -96,4 +96,11 @@ export class ChatsController {
       content: dto.content,
     } as CreateMessageDto);
   }
+
+  @Get('chat/:userName')
+  public async getChatsByUser(
+    @Query('userName') userName: string,
+  ): Promise<ChatRo[]> {
+    return this.chatService.getChatsByUser(userName);
+  }
 }
