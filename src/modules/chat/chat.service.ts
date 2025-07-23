@@ -7,13 +7,13 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Chat } from 'src/database/schemas/chats.schema';
+import { Chat } from './schemas/chats.schema';
 import { CreateChatDto } from '../../../../common/dto/chat/create-chat.dto';
 import { ChatRo } from '../../../../common/ro/chat/chat.ro';
-import { User, UserDocument } from 'src/database/schemas/users.schema';
+import { User, UserDocument } from 'src/modules/user/schemas/users.schema';
 import { chatType } from '../../../../common/enums/chat.enum';
 import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
-import { EmbeddedMessage } from 'src/database/schemas/embedded-message.schema';
+import { EmbeddedMessage } from 'src/modules/chat/schemas/embedded-message.schema';
 import { DeleteDmResponseRo } from '../../../../common/ro/chat/delete-dm-response.ro';
 
 @Injectable()

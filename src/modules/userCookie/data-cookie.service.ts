@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { DataCookie } from 'src/database/schemas/dataCookie.schema';
+import { DataCookie } from './schemas/data-cookie.schema';
 import { UserCookieRo } from '../../../../common/ro/dataCookie/user-cookie.ro';
 @Injectable()
 export class DataCookieService {

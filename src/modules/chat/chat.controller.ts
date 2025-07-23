@@ -9,7 +9,7 @@ import { ChatRo } from '../../../../common/ro/chat/chat.ro';
 import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
 import { MessageInfoResponse } from '../../../../common/ro/message/message-info-response.ro';
 import { DeleteDmResponseRo } from '../../../../common/ro/chat/delete-dm-response.ro';
-import { EmbeddedMessage } from 'src/database/schemas/embedded-message.schema';
+import { EmbeddedMessage } from 'src/modules/chat/schemas/embedded-message.schema';
 
 @Controller('chats')
 export class ChatsController {

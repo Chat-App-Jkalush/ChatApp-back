@@ -1,6 +1,5 @@
 import { Controller, Post, Body, Get, Query, Req, Res } from '@nestjs/common';
 import { DataCookieService } from './data-cookie.service';
-import { DataCookie } from 'src/database/schemas/dataCookie.schema';
 import { LatestChatIdDTO } from '../../../../common/dto/dataCookie/latest-chat-id.dto';
 import { Request, Response } from 'express';
 import { UserCookieRo } from '../../../../common/ro/dataCookie/user-cookie.ro';

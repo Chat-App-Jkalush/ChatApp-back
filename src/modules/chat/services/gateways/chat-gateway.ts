@@ -8,10 +8,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { ChatService } from '../chat.service';
-import { CreateMessageDto } from '../../../../../common/dto/message/create-message.dto';
-import { CommonConstants } from '../../../../../common';
-import { ChatCleanupService } from '../services/chat-cleanup.service';
+import { ChatService } from '../../chat.service';
+import { CreateMessageDto } from '../../../../../../common/dto/message/create-message.dto';
+import { CommonConstants } from '../../../../../../common';
+import { ChatCleanupService } from '../chat-cleanup.service';
 
 @WebSocketGateway(CommonConstants.GatewayConstants.DEFAULT_PORT, {
   cors: { origin: CommonConstants.GatewayConstants.CLIENT_ORIGIN },

@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Chat } from 'src/database/schemas/chats.schema';
+import { Chat } from './../schemas/chats.schema';
 import { BackendConstants } from 'src/constants/backend.constants';
 
 @Injectable()

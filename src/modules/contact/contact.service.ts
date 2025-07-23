@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from 'src/database/schemas/users.schema';
+import { User } from 'src/modules/user/schemas/users.schema';
 import { RemoveContactDto } from '../../../../common/dto/contact/remove-contact.dto';
 import { ContactRo } from '../../../../common/ro/contact/contact.ro';
 import { PaginatedContacts } from '../../../../common/ro/user/paginated-contacts.ro';

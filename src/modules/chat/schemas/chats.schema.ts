@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { chatType } from '../../../../common/enums/chat.enum';
 import {
   EmbeddedMessage,
   EmbeddedMessageSchema,
 } from './embedded-message.schema';
 import { BackendConstants } from 'src/constants';
+import { chatType } from '../../../../../common/enums/chat.enum';
 
 @Schema({
   timestamps: true,
