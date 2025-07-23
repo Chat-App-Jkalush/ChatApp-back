@@ -5,6 +5,9 @@ import { User } from 'src/modules/user/schemas/users.schema';
 import { RemoveContactDto } from '../../../../common/dto/contact/remove-contact.dto';
 import { ContactRo } from '../../../../common/ro/contact/contact.ro';
 import { PaginatedContacts } from '../../../../common/ro/user/paginated-contacts.ro';
+import { CreateChatDto } from '../../../../common/dto/chat/create-chat.dto';
+import { AddContactDto } from '../../../../common/dto/contact/add-contact.dto';
+import { GetPaginatedUsersDto } from '../../../../common/dto/user/get-paginated-users.dto';
 
 @Injectable()
 export class ContactService {
@@ -12,15 +15,14 @@ export class ContactService {
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
-  public async addContact(
-    userName: string,
-    contactName: string,
-  ): Promise<ContactRo> {
-    const user = await this.userModel.findOne({ userName }).exec();
+  public async addContact(dto: AddContactDto): Promise<ContactRo> {
+    const user = await this.userModel
+      .findOne({ userName: dto.userName })
+      .exec();
     if (!user) throw new BadRequestException('User not found');
     if (!user.contacts) user.contacts = [];
-    if (!user.contacts.includes(contactName)) {
-      user.contacts.push(contactName);
+    if (!user.contacts.includes(dto.contactName)) {
+      user.contacts.push(dto.contactName);
       await user.save();
     }
     return {
@@ -31,22 +33,21 @@ export class ContactService {
   }
 
   public async paginatedContacts(
-    userName: string,
-    page: number = 1,
-    pageSize: number = 10,
-    search?: string,
+    dto: GetPaginatedUsersDto,
   ): Promise<PaginatedContacts> {
-    const user = await this.userModel.findOne({ userName }).exec();
+    const user = await this.userModel
+      .findOne({ userName: dto.userName })
+      .exec();
     if (!user) throw new BadRequestException('User not found');
     let contacts = user.contacts ?? [];
-    if (search) {
-      const regex = new RegExp('^' + search, 'i');
+    if (dto.search) {
+      const regex = new RegExp('^' + dto.search, 'i');
       contacts = contacts.filter((c: string) => regex.test(c));
     }
     const total = contacts.length;
     const pagedContacts = contacts.slice(
-      (page - 1) * pageSize,
-      page * pageSize,
+      (dto.page - 1) * dto.pageSize,
+      dto.page * dto.pageSize,
     );
     return { contacts: pagedContacts, total };
   }

@@ -152,11 +152,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client: Socket,
     message: CreateMessageDto,
   ): Promise<void> {
-    const embeddedMessage = await this.chatService.addMessageToChat(
-      message.chatId,
-      message.sender,
-      message.content,
-    );
+    const embeddedMessage = await this.chatService.addMessageToChat({
+      chatId: message.chatId,
+      sender: message.sender,
+      content: message.content,
+    } as CreateMessageDto);
     if (!this.chatIdToSockets.has(message.chatId)) {
       this.chatIdToSockets.set(message.chatId, new Set());
     }

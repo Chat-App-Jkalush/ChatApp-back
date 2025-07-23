@@ -15,6 +15,9 @@ import { chatType } from '../../../../common/enums/chat.enum';
 import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
 import { EmbeddedMessage } from 'src/modules/chat/schemas/embedded-message.schema';
 import { DeleteDmResponseRo } from '../../../../common/ro/chat/delete-dm-response.ro';
+import { DmExistsDto } from '../../../../common/dto/chat/dm-exists.dto';
+import { GetPaginatedChatsDto } from '../../../../common/dto/chat/get-paginated-chats.dto';
+import { CreateMessageDto } from '../../../../common/dto/message/create-message.dto';
 
 @Injectable()
 export class ChatService {
@@ -69,20 +72,20 @@ export class ChatService {
   }
 
   public async paginatedChats(
-    userName: string,
-    page: number = 1,
-    pageSize: number = 10,
-    search?: string,
+    dto: GetPaginatedChatsDto,
   ): Promise<PaginatedChatsRo> {
-    const query: any = { participants: userName };
-    if (search) {
-      query.chatName = { $regex: '^' + search, $options: 'i' };
+    const query: Partial<{
+      participants: string;
+      chatName?: { $regex: string; $options: string };
+    }> = { participants: dto.userName };
+    if (dto.search) {
+      query.chatName = { $regex: '^' + dto.search, $options: 'i' };
     }
 
     const chats = await this.chatModel
       .find(query)
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
+      .skip((dto.page - 1) * dto.pageSize)
+      .limit(dto.pageSize)
       .exec();
 
     const total = await this.chatModel.countDocuments(query);
@@ -98,10 +101,7 @@ export class ChatService {
   }
 
   public async getChatById(chatId: string): Promise<any> {
-    const chat = await this.chatModel
-      .findById(chatId)
-      // .populate('messages') // Not needed for embedded arrays
-      .exec();
+    const chat = await this.chatModel.findById(chatId).exec();
     if (!chat) {
       throw new BadRequestException('Chat not found');
     }
@@ -114,11 +114,7 @@ export class ChatService {
     };
   }
 
-  public async getChatsByUser(
-    userName: string,
-  ): Promise<
-    { chatId: string; chatName: string; type: string; description: string }[]
-  > {
+  public async getChatsByUser(userName: string): Promise<ChatRo[]> {
     const chats = await this.chatModel.find({ participants: userName }).exec();
     return chats.map((chat) => ({
       chatId: chat._id.toString(),
@@ -160,10 +156,7 @@ export class ChatService {
     }
   }
 
-  public async dmExists(dto: {
-    userName1: string;
-    userName2: string;
-  }): Promise<boolean> {
+  public async dmExists(dto: DmExistsDto): Promise<boolean> {
     const { userName1, userName2 } = dto;
     const chat = await this.chatModel.findOne({
       type: chatType.DM,
@@ -172,10 +165,7 @@ export class ChatService {
     return !!chat;
   }
 
-  public async findDm(dto: {
-    userName1: string;
-    userName2: string;
-  }): Promise<string> {
+  public async findDm(dto: DmExistsDto): Promise<string> {
     const chat = await this.chatModel.findOne({
       type: chatType.DM,
       participants: { $all: [dto.userName1, dto.userName2] },
@@ -186,10 +176,7 @@ export class ChatService {
     return chat._id.toString();
   }
 
-  public async deleteDm(dto: {
-    userName1: string;
-    userName2: string;
-  }): Promise<DeleteDmResponseRo> {
+  public async deleteDm(dto: DmExistsDto): Promise<DeleteDmResponseRo> {
     const chatId = await this.findDm(dto);
     const result = await this.chatModel.deleteOne({ _id: chatId });
     if (result.deletedCount === 0) {
@@ -199,20 +186,17 @@ export class ChatService {
   }
 
   public async addMessageToChat(
-    chatId: string,
-    sender: string,
-    content: string,
+    dto: CreateMessageDto,
   ): Promise<EmbeddedMessage> {
-    const chat = await this.chatModel.findById(chatId);
+    const chat = await this.chatModel.findById(dto.chatId);
     if (!chat) throw new Error('Chat not found');
     const embeddedMessage: EmbeddedMessage = {
-      sender,
-      content,
+      sender: dto.sender,
+      content: dto.content,
       createdAt: new Date(),
     };
     chat.messages.push(embeddedMessage);
     await chat.save();
-    console.log(`Message saved to chat ${chatId}:`, embeddedMessage);
     return embeddedMessage;
   }
 }

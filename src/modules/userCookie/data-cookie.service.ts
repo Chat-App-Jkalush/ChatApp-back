@@ -3,21 +3,18 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { DataCookie } from './schemas/data-cookie.schema';
 import { UserCookieRo } from '../../../../common/ro/dataCookie/user-cookie.ro';
+import { SaveDataCookieDTO } from '../../../../common/dto/dataCookie/save-data-cookie.dto';
 @Injectable()
 export class DataCookieService {
   constructor(
     @InjectModel(DataCookie.name) private readonly userModel: Model<DataCookie>,
   ) {}
 
-  public async saveUserCookie(body: {
-    userName: string;
-    cookie: string;
-    latestChatId?: string;
-  }): Promise<UserCookieRo> {
+  public async saveUserCookie(dto: SaveDataCookieDTO): Promise<UserCookieRo> {
     const dataCookie = await this.userModel
       .findOneAndUpdate(
-        { userName: body.userName },
-        { $set: body },
+        { userName: dto.userName },
+        { $set: dto },
         { upsert: true, new: true },
       )
       .exec();

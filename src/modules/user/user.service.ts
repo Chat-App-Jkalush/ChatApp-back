@@ -7,6 +7,7 @@ import { BackendConstants } from 'src/constants/backend.constants';
 import { RegisterDto } from '../../../../common/dto/user/register.dto';
 import { UserResponse } from '../../../../common/ro/user/user-response.ro';
 import { PaginatedUsersRo } from '../../../../common/ro/user/paginated-users.ro';
+import { GetPaginatedChatsDto } from '../../../../common/dto/chat/get-paginated-chats.dto';
 
 @Injectable()
 export class UserService {
@@ -83,24 +84,23 @@ export class UserService {
   }
 
   public async paginatedUsers(
-    userName: string,
-    page: number = 1,
-    pageSize: number = 10,
-    search?: string,
+    dto: GetPaginatedChatsDto,
   ): Promise<PaginatedUsersRo> {
-    const currentUser = await this.userModel.findOne({ userName }).exec();
+    const currentUser = await this.userModel
+      .findOne({ userName: dto.userName })
+      .exec();
     const contacts = currentUser?.contacts || [];
-    const exclude = [userName, ...contacts];
+    const exclude = [dto.userName, ...contacts];
     const query: any = { userName: { $nin: exclude } };
-    if (search) {
-      query.userName.$regex = '^' + search;
+    if (dto.search) {
+      query.userName.$regex = '^' + dto.search;
       query.userName.$options = 'i';
     }
     const total = await this.userModel.countDocuments(query);
     const users = await this.userModel
       .find(query)
-      .skip((page - 1) * pageSize)
-      .limit(pageSize)
+      .skip((dto.page - 1) * dto.pageSize)
+      .limit(dto.pageSize)
       .exec();
     return {
       users: users.map((user) => this.mapToUserResponse(user)),
