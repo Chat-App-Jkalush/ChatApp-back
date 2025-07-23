@@ -6,20 +6,23 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { CreateContactDto } from '../../../../common/dto/contact/create-contact.dto';
 import { RemoveContactDto } from '../../../../common/dto/contact/remove-contact.dto';
-import { User } from '../../../../common/ro/user/user.ro';
+import { ContactRo } from '../../../../common/ro/contact/contact.ro';
 import { PaginatedContacts } from '../../../../common/ro/user/paginated-contacts.ro';
+import { AddContactDto } from '../../../../common/dto/contact/add-contact.dto';
+import { GetPaginatedChatsDto } from '../../../../common/dto/chat/get-paginated-chats.dto';
 
 @Controller('contacts')
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
 
   @Post('add')
-  public async addContact(@Body() dto: CreateContactDto): Promise<User> {
-    return this.contactService.addContact(dto.userName, dto.contactName);
+  public async addContact(@Body() dto: AddContactDto): Promise<ContactRo> {
+    return this.contactService.addContact(dto);
   }
 
   @Get('paginated')
@@ -29,22 +32,24 @@ export class ContactController {
     @Query('pageSize') pageSize: string,
     @Query('search') search?: string,
   ): Promise<PaginatedContacts> {
-    return this.contactService.paginatedContacts(
+    return this.contactService.paginatedContacts({
       userName,
-      Number(page),
-      Number(pageSize),
+      page: Number(page),
+      pageSize: Number(pageSize),
       search,
-    );
+    } as GetPaginatedChatsDto);
   }
 
   @Post('remove')
-  public async removeContact(@Body() dto: RemoveContactDto): Promise<User> {
+  public async removeContact(
+    @Body() dto: RemoveContactDto,
+  ): Promise<ContactRo> {
     try {
       return await this.contactService.removeContact(dto);
     } catch (error: any) {
       const errorMessage =
         error instanceof Error ? error.message : 'Failed to remove contact';
-      throw new HttpException(errorMessage, HttpStatus.BAD_REQUEST);
+      throw new BadRequestException(errorMessage);
     }
   }
 }

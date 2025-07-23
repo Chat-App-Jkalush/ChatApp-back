@@ -8,10 +8,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { ChatService } from '../chat.service';
-import { CreateMessageDto } from '../../../../../common/dto/message/create-message.dto';
-import { CommonConstants } from '../../../../../common';
-import { MessageService } from '../../message/message.service';
+import { ChatService } from '../../chat.service';
+import { CreateMessageDto } from '../../../../../../common/dto/message/create-message.dto';
+import { CommonConstants } from '../../../../../../common';
+import { ChatCleanupService } from '../chat-cleanup.service';
 
 @WebSocketGateway(CommonConstants.GatewayConstants.DEFAULT_PORT, {
   cors: { origin: CommonConstants.GatewayConstants.CLIENT_ORIGIN },
@@ -23,9 +23,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     Set<Socket>
   >();
 
+  private static lastCleanup: number = 0;
+  private static CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+
   constructor(
     private chatService: ChatService,
-    private messageService: MessageService,
+    private chatCleanupService: ChatCleanupService,
   ) {}
 
   @WebSocketServer() public server!: Server;
@@ -46,7 +49,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  public handleConnection(client: Socket): void {}
+  public async handleConnection(client: Socket): Promise<void> {
+    const now = Date.now();
+    if (now - ChatGateway.lastCleanup > ChatGateway.CLEANUP_INTERVAL_MS) {
+      ChatGateway.lastCleanup = now;
+      await this.chatCleanupService.manualCleanup();
+    }
+  }
 
   @SubscribeMessage(CommonConstants.GatewayConstants.EVENTS.JOIN_CHAT)
   public async handleJoinChat(
@@ -132,12 +141,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       sender: CommonConstants.GatewayConstants.SYSTEM,
       content: `${userName} has left the chat.`,
     };
-    const message = await this.messageService.createMessage(leaveMessage);
     const sockets = this.chatIdToSockets.get(chatId);
     if (sockets) {
-      sockets.forEach((socket: Socket) => {
-        socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, message);
-      });
+      sockets.forEach((socket: Socket) => {});
     }
   }
 
@@ -146,7 +152,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client: Socket,
     message: CreateMessageDto,
   ): Promise<void> {
-    const savedMessage = await this.messageService.createMessage(message);
+    const embeddedMessage = await this.chatService.addMessageToChat({
+      chatId: message.chatId,
+      sender: message.sender,
+      content: message.content,
+    } as CreateMessageDto);
     if (!this.chatIdToSockets.has(message.chatId)) {
       this.chatIdToSockets.set(message.chatId, new Set());
     }
@@ -155,8 +165,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       socketsSet.add(client);
       client.join(message.chatId);
     }
+    const payload = { ...embeddedMessage, chatId: message.chatId };
     socketsSet.forEach((socket: Socket) => {
-      socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, savedMessage);
+      socket.emit(CommonConstants.GatewayConstants.EVENTS.REPLY, payload);
     });
   }
 

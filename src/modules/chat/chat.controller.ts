@@ -4,9 +4,14 @@ import { CreateChatDto } from '../../../../common/dto/chat/create-chat.dto';
 import { AddUserToChatDto } from '../../../../common/dto/chat/add-user-to-chat.dto';
 import { UpdateUserChats } from '../../../../common/dto/chat/update-user-chats.dto';
 import { LeaveChatDto } from '../../../../common/dto/chat/leave-chat.dto';
-import { DmExitsDto } from '../../../../common/dto/chat/dm-exists.dto';
 import { ChatRo } from '../../../../common/ro/chat/chat.ro';
 import { PaginatedChatsRo } from '../../../../common/ro/chat/paginated-chats.ro';
+import { MessageInfoResponse } from '../../../../common/ro/message/message-info-response.ro';
+import { DeleteDmResponseRo } from '../../../../common/ro/chat/delete-dm-response.ro';
+import { EmbeddedMessage } from 'src/modules/chat/schemas/embedded-message.schema';
+import { DmExistsDto } from '../../../../common/dto/chat/dm-exists.dto';
+import { GetPaginatedChatsDto } from '../../../../common/dto/chat/get-paginated-chats.dto';
+import { CreateMessageDto } from '../../../../common/dto/message/create-message.dto';
 
 @Controller('chats')
 export class ChatsController {
@@ -37,12 +42,12 @@ export class ChatsController {
     @Query('pageSize') pageSize: string,
     @Query('search') search?: string,
   ): Promise<PaginatedChatsRo> {
-    return this.chatService.paginatedChats(
+    return this.chatService.paginatedChats({
       userName,
-      Number(page),
-      Number(pageSize),
+      page: Number(page),
+      pageSize: Number(pageSize),
       search,
-    );
+    } as GetPaginatedChatsDto);
   }
 
   @Get('paginated/:chatId')
@@ -64,12 +69,38 @@ export class ChatsController {
   }
 
   @Post('dm-exists')
-  public async dmExists(@Body() dto: DmExitsDto): Promise<boolean> {
+  public async dmExists(@Body() dto: DmExistsDto): Promise<boolean> {
     return this.chatService.dmExists(dto);
   }
 
   @Post('delete-dm')
-  public async deleteDm(@Body() dto: DmExitsDto): Promise<{ message: string }> {
+  public async deleteDm(@Body() dto: DmExistsDto): Promise<DeleteDmResponseRo> {
     return this.chatService.deleteDm(dto);
+  }
+
+  @Get(':chatId/messages')
+  public async getChatMessages(@Param('chatId') chatId: string) {
+    const chat = await this.chatService.getChatById(chatId);
+    if (!chat) return [];
+    return chat.messages || [];
+  }
+
+  @Post(':chatId/messages')
+  public async addMessageToChat(
+    @Param('chatId') chatId: string,
+    @Body() dto: CreateMessageDto,
+  ): Promise<EmbeddedMessage> {
+    return this.chatService.addMessageToChat({
+      chatId,
+      sender: dto.sender,
+      content: dto.content,
+    } as CreateMessageDto);
+  }
+
+  @Get('chat/:userName')
+  public async getChatsByUser(
+    @Query('userName') userName: string,
+  ): Promise<ChatRo[]> {
+    return this.chatService.getChatsByUser(userName);
   }
 }

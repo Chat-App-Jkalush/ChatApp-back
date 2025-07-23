@@ -3,6 +3,8 @@ import { UserService } from './user.service';
 import { RegisterDto } from '../../../../common/dto/user/register.dto';
 import { UserUpdateDto } from '../../../../common/dto/user/update-user.dto';
 import { UserResponse } from '../../../../common/ro/user/user-response.ro';
+import { PaginatedUsersRo } from '../../../../common/ro/user/paginated-users.ro';
+import { GetPaginatedUsersDto } from '../../../../common/dto/user/get-paginated-users.dto';
 
 @Controller('users')
 export class UserController {
@@ -33,12 +35,12 @@ export class UserController {
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
     @Query('search') search?: string,
-  ): Promise<{ users: UserResponse[]; total: number }> {
-    return this.userService.paginatedUsers(
+  ): Promise<PaginatedUsersRo> {
+    return this.userService.paginatedUsers({
       userName,
-      Number(page),
-      Number(pageSize),
+      page: Number(page),
+      pageSize: Number(pageSize),
       search,
-    );
+    } as GetPaginatedUsersDto);
   }
 }

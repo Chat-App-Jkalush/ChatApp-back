@@ -6,7 +6,6 @@ import { UserModule } from './modules/user/user.module';
 import { DatabaseModule } from './database/database.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
-import { MessagesModule } from './modules/message/message.module';
 import { ContactModule } from './modules/contact/constact.module';
 import { DataCookieModule } from './modules/userCookie/data-cookie.module';
 
@@ -15,7 +14,6 @@ import { DataCookieModule } from './modules/userCookie/data-cookie.module';
     ConfigModule.forRoot({ isGlobal: true }),
     DatabaseModule,
     UserModule,
-    MessagesModule,
     AuthModule,
     ChatModule,
     ContactModule,

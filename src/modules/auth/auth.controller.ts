@@ -2,7 +2,6 @@ import { Body, Controller, Post, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from '../../../../common/dto/user/login.dto';
 import { RegisterDto } from '../../../../common/dto/user/register.dto';
-import { UserResponse } from '../../../../common/ro/user/user-response.ro';
 import { Response } from 'express';
 import { JwtService } from '../chat/services/jwt.service';
 @Controller('auth')

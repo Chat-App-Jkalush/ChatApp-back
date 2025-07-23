@@ -6,65 +6,73 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Chat } from 'src/database/schemas/chats.schema';
-import { Message } from 'src/database/schemas/message.schema';
+import { Chat } from './../schemas/chats.schema';
+import { BackendConstants } from 'src/constants/backend.constants';
 
 @Injectable()
 export class ChatCleanupService implements OnModuleInit, OnModuleDestroy {
   private readonly logger: Logger = new Logger(ChatCleanupService.name);
 
-  constructor(
-    @InjectModel(Chat.name) private chatModel: Model<Chat>,
-    @InjectModel(Message.name) private messageModel: Model<Message>,
-  ) {}
+  constructor(@InjectModel(Chat.name) private chatModel: Model<Chat>) {}
 
   public async onModuleInit(): Promise<void> {
-    await this.cleanupOrphanedReferences();
+    await this.cleanupExpiredMessages();
     this.setupPeriodicCleanup();
   }
 
   public async onModuleDestroy(): Promise<void> {}
 
-  private async cleanupOrphanedReferences(): Promise<void> {
+  private async cleanupExpiredMessages(): Promise<void> {
     try {
-      this.logger.log('Starting cleanup of orphaned message references...');
-      const existingMessageIds = await this.messageModel.distinct('_id');
-      const result = await this.chatModel.updateMany(
-        {},
-        {
-          $pull: {
-            messages: { $nin: existingMessageIds },
-          },
-        },
+      const expiryDate = new Date(
+        Date.now() - BackendConstants.MessageConstants.EXPIRES_IN * 1000,
       );
-      this.logger.log(
-        `Cleaned up ${result.modifiedCount} chat documents with orphaned references`,
-      );
+      const chats = await this.chatModel.find({
+        'messages.createdAt': { $lt: expiryDate },
+      });
+      let totalRemoved = 0;
+      for (const chat of chats) {
+        const before = chat.messages.length;
+        chat.messages = chat.messages.filter(
+          (msg) => msg.createdAt > expiryDate,
+        );
+        const removed = before - chat.messages.length;
+        totalRemoved += removed;
+        if (removed > 0) {
+          await chat.save();
+        }
+      }
     } catch (error) {
-      this.logger.error('Failed to cleanup orphaned references:', error);
+      this.logger.error('Failed to cleanup expired embedded messages:', error);
     }
   }
 
   private setupPeriodicCleanup(): void {
-    this.logger.log('Setting up periodic cleanup...');
     setInterval(
       async () => {
-        await this.cleanupOrphanedReferences();
+        await this.cleanupExpiredMessages();
       },
-      30 * 60 * 1000,
+      60 * 60 * 1000,
     );
   }
 
-  public async manualCleanup(): Promise<{ modifiedCount: number }> {
-    const existingMessageIds = await this.messageModel.distinct('_id');
-    const result = await this.chatModel.updateMany(
-      {},
-      {
-        $pull: {
-          messages: { $nin: existingMessageIds },
-        },
-      },
+  public async manualCleanup(): Promise<{ totalRemoved: number }> {
+    const expiryDate = new Date(
+      Date.now() - BackendConstants.MessageConstants.EXPIRES_IN * 1000,
     );
-    return { modifiedCount: result.modifiedCount };
+    const chats = await this.chatModel.find({
+      'messages.createdAt': { $lt: expiryDate },
+    });
+    let totalRemoved = 0;
+    for (const chat of chats) {
+      const before = chat.messages.length;
+      chat.messages = chat.messages.filter((msg) => msg.createdAt > expiryDate);
+      const removed = before - chat.messages.length;
+      totalRemoved += removed;
+      if (removed > 0) {
+        await chat.save();
+      }
+    }
+    return { totalRemoved };
   }
 }
