@@ -18,9 +18,5 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
   },
-  "exclude": [
-    "../common",
-    "dist",
-    "node_modules"
-  ]
+  "exclude": ["../common", "dist", "node_modules"]
 }

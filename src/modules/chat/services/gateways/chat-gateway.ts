@@ -12,6 +12,9 @@ import { ChatService } from '../../chat.service';
 import { CreateMessageDto } from '../../../../../../common/dto/message/create-message.dto';
 import { CommonConstants } from '../../../../../../common';
 import { ChatCleanupService } from '../chat-cleanup.service';
+import { BackendConstants } from 'src/constants';
+import { MessageInfoDTO } from '../../../../../../kafka-microservice/dist/common/dto/message/message-info.dto';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 
 @WebSocketGateway(CommonConstants.GatewayConstants.DEFAULT_PORT, {
   cors: { origin: CommonConstants.GatewayConstants.CLIENT_ORIGIN },
@@ -220,6 +223,25 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     client.emit(CommonConstants.GatewayConstants.EVENTS.ONLINE_USERS_LIST, {
       onlineContacts,
+    });
+  }
+
+  @MessagePattern('pop-message')
+  handlePopMessage(@Payload() dto: MessageInfoDTO): void {
+    if (!dto?.recipients || !Array.isArray(dto.recipients)) {
+      console.warn('No recipients provided for pop-message:', dto);
+      return;
+    }
+    dto.recipients.forEach((userName) => {
+      const socket = this.userNameToSocket.get(userName);
+      if (!socket) {
+        console.log(`User ${userName} is not online, cannot send pop-message.`);
+        return;
+      }
+      socket.emit(CommonConstants.GatewayConstants.EVENTS.POP_MESSAGE, {
+        chatName: dto.chatName,
+        content: dto.content,
+      });
     });
   }
 }

@@ -19,17 +19,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ChatModule,
     ContactModule,
     DataCookieModule,
-    ClientsModule.register([
-      {
-        name: 'KAFKA_SERVICE',
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            brokers: ['localhost:9092'],
-          },
-        },
-      },
-    ]),
   ],
   controllers: [AppController],
   providers: [AppService],
