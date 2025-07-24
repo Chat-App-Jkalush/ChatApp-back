@@ -1,3 +1,5 @@
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+
 export namespace BackendConstants {
   export namespace AuthConstants {
     export const BCRYPT_SALT_ROUNDS: number = 10;
@@ -31,5 +33,21 @@ export namespace BackendConstants {
     } as const;
 
     export const EXPIRES_IN: number = 12 * 60 * 60;
+  }
+
+  export namespace MicroServices {
+    export const OPTIONS = {
+      host: '0.0.0.0',
+      port: 8877,
+    };
+
+    export const KAFKA_OPTIONS: MicroserviceOptions = {
+      transport: Transport.KAFKA,
+      options: {
+        client: {
+          brokers: ['localhost:9092'],
+        },
+      },
+    };
   }
 }
