@@ -22,11 +22,6 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
 
-  app.connectMicroservice<MicroserviceOptions>(
-    BackendConstants.MicroServices.KAFKA_OPTIONS,
-  );
-
-  await app.startAllMicroservices();
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

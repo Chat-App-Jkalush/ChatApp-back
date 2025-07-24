@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ChatModule } from './modules/chat/chat.module';
 import { ContactModule } from './modules/contact/constact.module';
 import { DataCookieModule } from './modules/userCookie/data-cookie.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
   imports: [
@@ -18,6 +19,17 @@ import { DataCookieModule } from './modules/userCookie/data-cookie.module';
     ChatModule,
     ContactModule,
     DataCookieModule,
+    ClientsModule.register([
+      {
+        name: 'KAFKA_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            brokers: ['localhost:9092'],
+          },
+        },
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],

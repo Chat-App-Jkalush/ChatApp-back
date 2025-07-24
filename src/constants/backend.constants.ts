@@ -1,4 +1,5 @@
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { group } from 'console';
 
 export namespace BackendConstants {
   export namespace AuthConstants {
@@ -35,19 +36,5 @@ export namespace BackendConstants {
     export const EXPIRES_IN: number = 12 * 60 * 60;
   }
 
-  export namespace MicroServices {
-    export const OPTIONS = {
-      host: '0.0.0.0',
-      port: 8877,
-    };
-
-    export const KAFKA_OPTIONS: MicroserviceOptions = {
-      transport: Transport.KAFKA,
-      options: {
-        client: {
-          brokers: ['localhost:9092'],
-        },
-      },
-    };
-  }
+  export namespace MicroServices {}
 }
