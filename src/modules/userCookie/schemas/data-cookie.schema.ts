@@ -18,7 +18,7 @@ export class DataCookie {
   @Prop({
     required: true,
     trim: true,
-    expires: CommonConstants.CookiesConstants.EXPERATION_TIME_NUMBER,
+    expires: CommonConstants.CookiesConstants.EXPIRATION_TIME_NUMBER,
   })
   cookie: string;
 
